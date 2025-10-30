@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="intelligent_kmeans_view_form" model="ir.ui.view">
+            <field name="name">intelligent.kmeans.form</field>
+            <field name="model">intelligent.kmeans</field>
+            <field name="arch" type="xml">
+                <form string="Intelligent K-Means Run">
+                    <header>
+                        <button name="action_find_optimal_k" type="object" string="Step 1: Find Optimal K" class="btn-secondary"/>
+                        <button name="action_run_final_clustering" type="object" string="Step 2: Run Final Clustering" class="oe_highlight" confirm="This will run clustering with k={chosen_k} and save results. Continue?"/>
+                        <button name="action_view_scatter_plot" type="object" string="View Scatter Plot" class="btn-primary" attrs="{'invisible': [('result_count', '=', 0)]}" help="View interactive scatter plot (requires results)"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_results" type="object" class="oe_stat_button" icon="fa-users">
+                                <field name="result_count" widget="statinfo" string="Results"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><label for="run_date" string="K-Means Run"/></h1>
+                            <h2><field name="run_date" readonly="1"/></h2>
+                        </div>
+                        <notebook>
+                            <page string="Final Clustering (Run)">
+                                <group>
+                                    <group string="Parameters">
+                                        <field name="chosen_k"/>
+                                        </group>
+                                    <group string="Final Evaluation Results">
+                                        <field name="final_silhouette"/>
+                                        <field name="final_dbi"/>
+                                    </group>
+                                </group>
+                                <separator string="Final Centroids (Z-Scores)"/>
+                                <field name="final_centroids" widget="html"/>
+                                </page>
+                            <page string="Find Optimal K (Analysis)">
+                                <group>
+                                    <group string="Parameters">
+                                        <field name="k_min"/>
+                                        <field name="k_max"/>
+                                    </group>
+                                    <group string="Results">
+                                        <field name="wcss_results" widget="html"/>
+                                        <field name="silhouette_results" widget="html"/>
+                                    </group>
+                                </group>
+                                <separator string="Elbow Method Graph"/>
+                                <field name="elbow_chart" widget="image" nolabel="1" style="max-width: 800px;"/>
+                                <group string="Raw Data (Optional)">
+                                    <field name="wcss_data" readonly="1"/>
+                                    <field name="silhouette_data" readonly="1"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="intelligent_kmeans_view_tree" model="ir.ui.view">
+            <field name="name">intelligent.kmeans.tree</field>
+            <field name="model">intelligent.kmeans</field>
+            <field name="arch" type="xml">
+                <tree string="K-Means Runs" create="true">
+                    <field name="run_date"/>
+                    <field name="chosen_k"/>
+                    <field name="final_silhouette"/>
+                    <field name="final_dbi"/>
+                    <field name="result_count" string="Results"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="intelligent_kmeans_action" model="ir.actions.act_window">
+            <field name="name">Intelligent K-Means</field>
+            <field name="res_model">intelligent.kmeans</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+
+        <menuitem
+            id="intelligent_kmeans_menu"
+            name="Intelligent K-Means"
+            parent="ticket_menu_root"
+            action="intelligent_kmeans_action"
+            sequence="10"/>
+
+    </data>
+</odoo>

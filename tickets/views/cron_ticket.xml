@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+   <data>
+        <record id="ir_cron_recompute_min_point" model="ir.cron">
+            <field name="name">Recompute Imported Ticket Usage</field>
+            <field name="model_id" ref="model_ticket_name"/>
+            <field name="state">code</field>
+            <field name="code">model.recompute_imported_min_points()</field>
+            <field name="active">True</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">2</field>
+        </record>
+   </data>
+</odoo>

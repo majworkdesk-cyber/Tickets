@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_kmeans_scatter_plot_dashboard" model="ir.actions.client">
+            <field name="name">K-Means Scatter Plot</field>
+            <field name="tag">kmeans_scatter_plot_action</field>
+        </record>
+        </data>
+</odoo>

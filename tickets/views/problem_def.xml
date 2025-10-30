@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+   <data noupdate="0">
+        <record id="definition_form" model="ir.ui.view">
+            <field name="name">definition.form</field>
+            <field name="model">definition.name</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <header>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="remark"/>
+                            <field name="service_title"/>
+                            <field name="priority"/>
+                            <field name="complexity"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="definition_tree" model="ir.ui.view">
+            <field name="name">definition.tree</field>
+            <field name="model">definition.name</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <field name="name"/>
+                    <field name="remark"/>
+                    <field name="service_title"/>
+                    <field name="priority"/>
+                    <field name="complexity"/>
+                </tree>
+            </field>
+        </record>
+        <record id="definition_action" model="ir.actions.act_window">
+            <field name="name">Problem Definition</field>
+            <field name="res_model">definition.name</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+        <!-- This Menu Item Must have a parent -->
+        <menuitem id="config_menu_categ" name="config" parent="ticket_menu_root" sequence="2" groups="tickets.group_admin,tickets.group_sales"/>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="Definition" name="Definition" parent="config_menu_categ" action="definition_action" sequence="11" groups="tickets.group_admin,tickets.group_sales"/>
+   </data>
+</odoo>

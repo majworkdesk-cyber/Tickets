@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <templates xml:space="preserve">
+        <t t-name="tickets.TicketDashboard" owl="1">
+            <div class="o_ticket_dashboard o_form_view">
+                <!-- Judul -->
+                <div class="o_ticket_dashboard_header">
+                    <h2 style="margin-bottom:20px;">📊 Ticket Dashboard</h2>
+                </div>
+
+                <!-- Kontainer chart -->
+                <div class="o_ticket_dashboard_content" style="display:flex; flex-wrap:wrap; gap:20px;">
+                    
+                    <!-- Chart distribusi Problem Description -->
+                    <div class="o_ticket_chart_card" style="flex:1; min-width:400px; border:1px solid #ddd; border-radius:8px; padding:10px;">
+                        <h3 style="text-align:center;">Problem Distribution</h3>
+                        <canvas t-ref="problemChart" style="width:100%; height:300px;"></canvas>
+                    </div>
+
+                    <!-- Chart distribusi Priority -->
+                    <div class="o_ticket_chart_card" style="flex:1; min-width:400px; border:1px solid #ddd; border-radius:8px; padding:10px;">
+                        <h3 style="text-align:center;">Priority Distribution</h3>
+                        <canvas t-ref="priorityChart" style="width:100%; height:300px;"></canvas>
+                    </div>
+
+                </div>
+
+                <!-- Chart rata-rata rating -->
+                <div class="o_ticket_chart_card" style="margin-top:20px; border:1px solid #ddd; border-radius:8px; padding:10px;">
+                    <h3 style="text-align:center;">Average Rating</h3>
+                    <canvas t-ref="ratingChart" style="width:100%; height:350px;"></canvas>
+                </div>
+            </div>
+        </t>
+    </templates>
+</odoo>

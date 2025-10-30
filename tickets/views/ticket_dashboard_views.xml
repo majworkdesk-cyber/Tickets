@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Graph: Tren Jumlah Tiket per Bulan -->
+        <record id="view_ticket_graph_trend" model="ir.ui.view">
+            <field name="name">ticket.name.graph.trend</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <graph string="Tren Tiket per Bulan" type="line">
+                    <field name="submitted_date" interval="month"/>
+                    <field name="id" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Graph: Distribusi Kategori (Pie) -->
+        <record id="view_ticket_graph_category" model="ir.ui.view">
+            <field name="name">ticket.name.graph.category</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <graph string="Distribusi Kategori Layanan" type="pie">
+                    <field name="category"/>
+                    <field name="id" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Graph: Distribusi Problem Description (Bar) -->
+        <record id="view_ticket_graph_problem" model="ir.ui.view">
+            <field name="name">ticket.name.graph.problem</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <graph string="Distribusi Problem Description" type="bar">
+                    <field name="problem_description"/>
+                    <field name="id" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Graph: Distribusi Prioritas (Bar) -->
+        <record id="view_ticket_graph_priority" model="ir.ui.view">
+            <field name="name">ticket.name.graph.priority</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <graph string="Distribusi Prioritas" type="bar">
+                    <field name="priority"/>
+                    <field name="id" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Graph: Distribusi Rating Pelanggan (Pie) -->
+        <record id="view_ticket_graph_rating" model="ir.ui.view">
+            <field name="name">ticket.name.graph.rating</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <graph string="Distribusi Rating Pelanggan" type="pie">
+                    <field name="customer_rating"/>
+                    <field name="id" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Pivot: Analitik Lengkap -->
+        <record id="view_ticket_pivot" model="ir.ui.view">
+            <field name="name">ticket.name.pivot</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <pivot string="Pivot Tiket">
+                    <field name="category" type="row"/>
+                    <field name="problem_description" type="row"/>
+                    <field name="priority" type="row"/>
+                    <field name="technician" type="col"/>
+                    <field name="id" type="measure" string="Jumlah Tiket"/>
+                    <field name="response_time_hours" type="measure" string="Resp (Jam)"/>
+                    <field name="work_day" type="measure" string="Work Days"/>
+                    <field name="customer_rating" type="measure" string="Rating"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action untuk Dashboard -->
+        <record id="action_ticket_dashboard" model="ir.actions.act_window">
+            <field name="name">Ticket Dashboard</field>
+            <field name="res_model">ticket.name</field>
+            <field name="view_mode">graph,pivot</field>
+            <field name="views" eval="[
+                (ref('view_ticket_graph_trend'),'graph'),
+                (ref('view_ticket_graph_category'),'graph'),
+                (ref('view_ticket_graph_problem'),'graph'),
+                (ref('view_ticket_graph_priority'),'graph'),
+                (ref('view_ticket_graph_rating'),'graph'),
+                (ref('view_ticket_pivot'),'pivot')
+            ]"/>
+            <field name="search_view_id" ref="view_ticket_name_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Dashboard ini menampilkan:
+                </p>
+                <ul>
+                    <li>📈 Tren tiket per bulan</li>
+                    <li>🥧 Distribusi kategori layanan</li>
+                    <li>⚠️ Distribusi problem description</li>
+                    <li>📊 Distribusi prioritas tiket</li>
+                    <li>⭐ Distribusi rating pelanggan</li>
+                    <li>📌 Analisis kinerja teknisi (pivot)</li>
+                </ul>
+            </field>
+        </record>
+
+        <!-- <record id="action_ticket_dashboard_js" model="ir.actions.client">
+            <field name="name">Ticket Dashboard (Custom)</field>
+            <field name="tag">tickets.ticket_dashboard_action</field>
+        </record> -->
+
+        <record id="action_ticket_dashboard_js" model="ir.actions.client">
+        <field name="name">Ticket Dashboard (Custom)</field>
+        <field name="tag">tickets.ticket_dashboard_action</field>
+        </record>
+
+        <menuitem id="ticket_menu_dashboard_js"
+                name="Dashboard JS"
+                parent="ticket_menu_categ"
+                action="action_ticket_dashboard_js"
+                sequence="2"/>
+
+        <!-- Menu untuk Dashboard -->
+        <!-- <menuitem id="ticket_menu_dashboard"
+                  name="Dashboard"
+                  parent="ticket_menu_categ"
+                  action="action_ticket_dashboard"
+                  sequence="2"/> -->
+
+    </data>
+</odoo>

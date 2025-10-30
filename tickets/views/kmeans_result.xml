@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="kmeans_result_view_tree" model="ir.ui.view">
+            <field name="name">kmeans.result.tree</field>
+            <field name="model">kmeans.result</field> <field name="arch" type="xml">
+                <tree string="Cluster Assignment Results" create="false" delete="true" edit="false">
+                    <field name="run_id" optional="show"/>
+                    <field name="cluster_id" widget="badge" decoration-primary="(cluster_id == 1)" decoration-success="(cluster_id == 2)" decoration-warning="(cluster_id == 3)" decoration-info="(cluster_id == 4)" decoration-muted="(cluster_id >= 5)"/>
+                    <field name="customer_id" string="Customer"/>
+                    <field name="norm_ticket_count" string="Z-Count"/>
+                    <field name="norm_priority" string="Z-Priority"/>
+                    <field name="norm_complexity" string="Z-Complexity"/>
+                    <field name="norm_response_time" string="Z-Response"/>
+                    <field name="norm_resolution_time" string="Z-Resolution"/>
+                    <field name="norm_rating" string="Z-Rating"/>
+                    <field name="norm_point" string="Z-Point"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="kmeans_result_view_form" model="ir.ui.view">
+            <field name="name">kmeans.result.form</field>
+            <field name="model">kmeans.result</field> <field name="arch" type="xml">
+                 <form string="Cluster Result" create="false" edit="false" delete="true">
+                     <sheet>
+                         <group>
+                             <group>
+                                 <field name="run_id"/>
+                                 <field name="customer_id"/>
+                                 <field name="cluster_id"/>
+                             </group>
+                             <group string="Normalized Data Snapshot (at time of clustering)">
+                                 <field name="norm_ticket_count"/>
+                                 <field name="norm_priority"/>
+                                 <field name="norm_complexity"/>
+                                 <field name="norm_response_time"/>
+                                 <field name="norm_resolution_time"/>
+                                 <field name="norm_rating"/>
+                                 <field name="norm_point"/>
+                             </group>
+                         </group>
+                     </sheet>
+                 </form>
+            </field>
+        </record>
+
+        <record id="kmeans_result_view_search" model="ir.ui.view">
+            <field name="name">kmeans.result.search</field>
+            <field name="model">kmeans.result</field> <field name="arch" type="xml">
+                <search string="Search Cluster Results">
+                    <field name="customer_id"/>
+                    <field name="run_id"/>
+                    <separator/>
+                    <filter string="Cluster 1" name="cluster_1" domain="[('cluster_id', '=', 1)]"/>
+                    <filter string="Cluster 2" name="cluster_2" domain="[('cluster_id', '=', 2)]"/>
+                    <filter string="Cluster 3" name="cluster_3" domain="[('cluster_id', '=', 3)]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Cluster" name="group_by_cluster" context="{'group_by': 'cluster_id'}"/>
+                        <filter string="K-Means Run" name="group_by_run" context="{'group_by': 'run_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="kmeans_result_action" model="ir.actions.act_window">
+            <field name="name">Cluster Results</field>
+            <field name="res_model">kmeans.result</field> <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="kmeans_result_view_search"/>
+            <field name="context">{'search_default_group_by_cluster': 1}</field>
+        </record>
+
+        <menuitem
+            id="kmeans_result_menu"
+            name="Cluster Results"
+            parent="ticket_menu_root" 
+            action="kmeans_result_action"
+            sequence="11"/>
+
+    </data>
+</odoo>

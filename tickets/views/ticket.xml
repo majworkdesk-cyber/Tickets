@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+   <data noupdate="0">
+        <record id="ticket_form" model="ir.ui.view">
+            <field name="name">ticket.form</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <header>
+                    <button name="state_submit"
+                        type="object"
+                        string="submit"
+                        class="btn-primary"
+                        groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"
+                        attrs="{'invisible': [('states', '!=', 4 )]}"
+                        />
+                    <button name="state_progress"
+                    type="object"
+                    string="progress"
+                    class="btn-primary"
+                    groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"
+                    attrs="{'invisible': [('states', '!=', 1 )]}"
+                        />
+                    <button name="state_finish"
+                        type="object"
+                        string="finish"
+                        class="btn-primary"
+                        groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"
+                        attrs="{'invisible': [('states', '!=', 2 )]}"
+                        />
+                    <button name="action_calculate_cost"
+                        type="object"
+                        string="Calculate Cost"
+                        class="btn-primary"
+                        groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"
+                        attrs="{'invisible': ['|',('states', 'in', [1, 2, 4]), ('calculate_bool', '=', True)]}"
+                        />
+                    <button name="action_calculate_cost"
+                        type="object"
+                        string="Calculate Cost"
+                        class="btn-primary"
+                        groups="tickets.group_customer_only"
+                        invisible="1"
+                        />
+                    <button name="state_cancel"
+                        type="object"
+                        string="cancel"
+                        class="btn-primary"
+                        groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"
+                        attrs="{'invisible': [('states', '=', 4 )]}"
+                        />
+                   <field name="states" widget="statusbar" attrs="{'readonly': [('states_readonly', '=', True)]}"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="states_readonly" invisible="1"/>
+                                <field name="calculate_bool" invisible="1"/>
+                                <field name="name"/>
+                                <field name="customer_name_id" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
+                                <field name="customer_name_id" groups="tickets.group_customer_only" invisible="1"/>
+                                <field name="customer_name" readonly="True"/>
+                                <field name="priority" widget="priority" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
+                                <field name="priority" widget="priority" groups="tickets.group_customer_only" invisible="1"/>
+                                <field name="complexity" widget="priority" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
+                                <field name="complexity" widget="priority" groups="tickets.group_customer_only" invisible="1"/>
+                                <field name="sales_person_id" attrs="{'readonly': True}" options="{'no_create': True, 'no_open': True}"/>
+                                <!-- <field name="sales_person_id"
+                                    groups="tickets.group_admin,tickets.group_sales"
+                                    readonly="0"
+                                    options="{'no_create': True, 'no_open': True}"/>
+                                <field name="sales_person_id"
+                                    groups="tickets.group_customer_only"
+                                    readonly="1"
+                                    options="{'no_create': True, 'no_open': True}"/> -->
+                                <field name="submitted_date" readonly="True"/>
+                                <field name="progress_date" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician" attrs="{'readonly': True}"/>
+                                <!-- <field name="response_time_days" groups="tickets.group_admin,tickets.group_sales" attrs="{'readonly': True}"/> -->
+                            </group>
+                            <group>
+                                <!-- <field name="response_time_hours" groups="tickets.group_admin,tickets.group_sales" attrs="{'readonly': True}"/> -->
+                                <!-- <field name="response_time_minutes" groups="tickets.group_admin,tickets.group_sales" attrs="{'readonly': True}"/> -->
+                                <field name="finish_date" groups="tickets.group_admin" attrs="{'readonly': True}"/>
+                                <field name="finish_date" groups="tickets.group_sales,tickets.group_technician" attrs="{'readonly': True}"/>
+                                <field name="finish_date" groups="tickets.group_customer_only" attrs="{'readonly': True}"/>
+                                <field name="work_day" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician" attrs="{'readonly': True}"/>
+                                <field name="technician" groups="tickets.group_admin"/>
+                                <field name="technician" groups="tickets.group_sales,tickets.group_technician"/>
+                                <field name="technician" groups="tickets.group_customer_only" attrs="{'readonly': True}" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="tech_note" groups="tickets.group_admin"/>
+                                <field name="tech_note" groups="tickets.group_sales" attrs="{'readonly': True}"/>
+                                <field name="tech_note" groups="tickets.group_technician"/>
+                                <field name="tech_note" groups="tickets.group_customer_only" attrs="{'readonly': True}"/>
+                                <field name="category" attrs="{'readonly': [('states', 'in', [2,3,4])]}"/>
+                                <field name="point_value" invisible="0"/>
+                                <field name="points_id" groups="tickets.group_admin"/>
+                                <field name="points_id" groups="tickets.group_customer_only,tickets.group_sales,tickets.group_technician" attrs="{'readonly': True}" invisible="1"/>
+                                <field name="expired_ticket"/>
+                                <field name="min_point" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician" attrs="{'readonly': [('calculate_bool', '=', True)]}"/>
+                                <field name="min_point" groups="tickets.group_customer_only" attrs="{'readonly': True}"/>
+                                <field name="customer_rating" widget="priority"/>
+                                <!-- <field name="total_point_used"/> -->
+                            </group>
+                            <notebook>
+                                <page string="Problem Description">
+                                        <group>
+                                           <!-- <control>
+                                                <create name="add_problem_line" string="Add New Problem 🚨 "/>
+                                            </control>  -->
+                                            <!-- <field name="problem_id"/> -->
+                                            <field name="definition"/>
+                                            <field name="remark_name" readonly="True"/>
+                                            <field name="problem_description"/>
+                                            <field name="photo_prove" widget='image' options="{'size': [150,150]}"  />
+                                        </group>
+                                </page>
+                            </notebook>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_ticket_name_search" model="ir.ui.view">
+            <field name="name">ticket.name.search</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <search string="Search Ticket">
+                    <!-- Default Search Field -->
+                    <field name="name"/>
+                    <field name="customer_name_id"/>
+                    <field name="sales_person_id"/>
+                    <field name="states"/>
+
+                    <!-- Group By Filter -->
+                    <filter name="group_by_customer" string="Group by Customer"
+                            context="{'group_by': 'customer_name_id'}"/>
+                    <filter name="group_by_sales" string="Group by Sales Person"
+                            context="{'group_by': 'sales_person_id'}"/>
+                    <filter name="group_by_state" string="Group by State"
+                            context="{'group_by': 'states'}"/>
+                </search>
+            </field>
+        </record>                               
+
+        <record id="quick_create_machine_repair_form" model="ir.ui.view" >
+            <field name="name">machine.repair.form.quick_create</field>
+            <field name="model">ticket.name</field>
+            <field name="priority">1000</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="customer_name_id" groups="tickets.group_admin"/>
+                        <field name="customer_name_id" invisible="1"/>
+                        <field name="customer_name" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician" attrs="{'readonly': True}" options="{'no_create': True, 'no_edit': True, 'no_delete': True}"/>
+                        <field name="customer_name" groups="tickets.group_customer_only" attrs="{'readonly': True}" options="{'no_create': True, 'no_edit': True, 'no_delete': True}"/>
+                        <field name="points_id" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
+                        <field name="points_id" groups="tickets.group_customer_only" attrs="{'readonly': True}"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="ticket_kanban_view" model="ir.ui.view">
+            <field name="name">machine.repair.kanban.view</field>
+            <field name="model">ticket.name</field>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                <kanban default_group_by="states" empty_column="1" class="o_kanban_small_column o_opportunity_kanban" on_create="quick_create" quick_create_view="tickets.quick_create_machine_repair_form"
+                    archivable="false" sample="1" js_class="crm_kanban">
+                    <field name="name"/>
+                    <field name="states"/>
+                    <field name="customer_name_id"/>
+                    <field name="sales_person_id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click oe_kanban_card d-flex flex-column">
+                                <div class="o_dropdown_kanban dropdown">
+                                    <a class="dropdown-toggle o-no-caret btn" role="button" data-bs-toggle="dropdown" data-bs-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Edit</a></t>
+                                        <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
+                                    </div>
+                                </div>
+                                 <div class="oe_kanban_content flex-grow-1 px-2 py-1">
+                                    <div class="o_kanban_record_title oe_kanban_details">
+                                        <strong><field name="name"/></strong>
+                                    </div>
+                                    <div class="o_kanban_record_subtitle mb-1">
+                                        <t t-if="record.customer_name_id.value">
+                                            <i class="fa fa-user me-1"/> <t t-esc="record.customer_name_id.value"/>
+                                        </t>
+                                    </div>
+                                    <div>
+                                        <a> Sales: </a><field name="sales_person_id"/>
+                                    </div>
+                                    <div>
+                                        <a> Tech: </a><field name="technician"/>
+                                    </div>
+                                    <div>
+                                        <field name="states" widget="badge"/>
+                                        <field name="priority" widget="priority" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
+                                        <field name="priority" widget="priority" groups="tickets.group_customer_only" invisible="1"/>
+                                        <!-- <a> Point: </a><field name="point_value"/> -->
+                                    </div>
+                                    <div>
+                                    <a> Point Cost: </a><field name="min_point"/>
+                                    </div>
+                                    <div>
+                                    <field name="customer_rating"/>
+                                    </div>
+                                </div>
+                            </div> 
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- <record id="ticket_view_kanban" model="ir.ui.view">
+            <field name="name">ticket.view.kanban</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="states" empty_column="1" class="o_kanban_small_column o_opportunity_kanban" on_create="quick_create" quick_create_view="machine_repair.quick_create_machine_repair_form"
+                    archivable="false" sample="1" js_class="crm_kanban">
+
+                    <field name="color"/>
+                    <field name="name"/>
+                    <field name="states"/>
+                    <field name="customer_name_id"/>
+                    <field name="sales_person_id"/>
+
+                    <templates>
+                        <t t-name="kanban-box">
+
+                            <t t-set="lost_ribbon" t-value="record.states.raw_value == 'cancel'"/>
+                            <div t-attf-class="#{kanban_color(record.color.raw_value)} #{lost_ribbon ? 'oe_kanban_card_ribbon' : ''} oe_kanban_global_click oe_kanban_card d-flex flex-column" style="position: relative; min-height: 105px; overflow: hidden;">
+
+                                <div class="ribbon ribbon-top-right" t-if="lost_ribbon">
+                                    <span class="bg-danger">Lost</span>
+                                </div>
+
+
+                                <div class="o_dropdown_kanban dropdown" style="position: absolute; top: 8px; right: 8px;">
+                                    <a class="dropdown-toggle o-no-caret btn" role="button" data-bs-toggle="dropdown" data-bs-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Edit</a></t>
+                                        <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
+                                        <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="oe_kanban_content flex-grow-1 px-2 py-1">
+                                    <div class="o_kanban_record_title oe_kanban_details">
+                                        <strong><field name="name"/></strong>
+                                    </div>
+                                    <div class="o_kanban_record_subtitle mb-1">
+                                        <t t-if="record.customer_name_id.value">
+                                            <i class="fa fa-user me-1"/> <t t-esc="record.customer_name_id.value"/>
+                                        </t>
+                                    </div>
+                                    <div>
+                                        <field name="sales_person_id"/>
+                                    </div>
+                                    <div>
+                                        <field name="states" widget="badge"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record> -->
+
+        <record id="ticket_tree" model="ir.ui.view">
+            <field name="name">ticket.tree</field>
+            <field name="model">ticket.name</field>
+            <field name="arch" type="xml">
+                <tree string="">
+                    <!-- <field name="name"/> -->
+                    <field name="customer_name_id"/>
+                    <field name="category"/>
+                    <field name="priority"/>
+                    <field name="sales_person_id"/>
+                    <field name="submitted_date"/>
+                    <field name="progress_date"/>
+                    <field name="finish_date"/>
+                    <!-- <field name="work_day"/> -->
+                    <field name="technician"/>
+                    <field name="min_point"/>
+                    <!-- <field name="states"/> -->
+                    <!-- <field name="problem_id"/> -->
+                    <field name="definition"/>
+                    <!-- <field name="total_point_used"/> -->
+                    <field name="customer_rating"/>
+                </tree>
+            </field>
+        </record>
+        <record id="ticket_action" model="ir.actions.act_window">
+            <field name="name">Ticket</field>
+            <field name="res_model">ticket.name</field>
+            <field name="view_mode">kanban,tree,form</field>
+        </record>
+    <!-- This Menu Item will appear in the Upper bar, that's why It needs NO parent or action -->
+    <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+    <!-- This Menu Item Must have a parent -->
+    <menuitem id="ticket_menu_categ" name="Menu Ticket" parent="ticket_menu_root" sequence="1"/>
+    <!-- This Menu Item must have a parent and an action -->
+    <menuitem id="ticket_menu_act" name="Create a Ticket" parent="ticket_menu_categ" action="ticket_action" sequence="1"/>
+   </data>
+</odoo>

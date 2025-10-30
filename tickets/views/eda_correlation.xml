@@ -1,0 +1,120 @@
+<odoo>
+  <data>
+    <record id="eda_correlation_initial_record" model="eda.correlation">
+      <field name="calculation_date">2025-01-01 00:00:00</field>
+      <field name="corr_ticket_priority">0.0</field>
+      <field name="corr_ticket_complexity">0.0</field>
+      <field name="corr_ticket_response">0.0</field>
+      <field name="corr_ticket_resolution">0.0</field>
+      <field name="corr_ticket_point">0.0</field>
+      <field name="corr_ticket_rating">0.0</field>
+      <field name="corr_priority_complexity">0.0</field>
+      <field name="corr_priority_response">0.0</field>
+      <field name="corr_priority_resolution">0.0</field>
+      <field name="corr_priority_point">0.0</field>
+      <field name="corr_priority_rating">0.0</field>
+      <field name="corr_complexity_response">0.0</field>
+      <field name="corr_complexity_resolution">0.0</field>
+      <field name="corr_complexity_point">0.0</field>
+      <field name="corr_complexity_rating">0.0</field>
+      <field name="corr_response_resolution">0.0</field>
+      <field name="corr_response_point">0.0</field>
+      <field name="corr_response_rating">0.0</field>
+      <field name="corr_resolution_point">0.0</field>
+      <field name="corr_resolution_rating">0.0</field>
+      <field name="corr_point_rating">0.0</field>
+    </record>
+
+    <record id="action_server_compute_correlation" model="ir.actions.server">
+        <field name="name">Compute Correlation Matrix</field>
+        <field name="model_id" ref="model_eda_correlation"/>
+        <field name="binding_model_id" ref="model_eda_correlation"/>
+        <field name="state">code</field>
+        <field name="code">
+# Calls the Python method responsible for calculation and update
+action = model.compute_and_save_correlation()
+        </field>
+    </record>
+
+    <record id="view_eda_correlation_tree" model="ir.ui.view">
+      <field name="name">eda.correlation.tree</field>
+      <field name="model">eda.correlation</field>
+      <field name="arch" type="xml">
+        <tree string="EDA Correlation Results" default_order="calculation_date desc" create="false" edit="false" delete="false">
+          <field name="calculation_date"/>
+          <field name="corr_complexity_point"/>
+          <field name="corr_resolution_point"/>
+        </tree>
+      </field>
+    </record>
+
+    <record id="view_eda_correlation_form" model="ir.ui.view">
+      <field name="name">eda.correlation.form</field>
+      <field name="model">eda.correlation</field>
+      <field name="arch" type="xml">
+        <form string="Correlation Matrix Detail" create="false" edit="false" delete="false">
+          <header>
+             </header>
+          <sheet>
+            <group>
+              <field name="calculation_date" readonly="1"/>
+            </group>
+            <group string="Correlation Between Ticket Count and Others">
+              <group>
+                <field name="corr_ticket_priority"/>
+                <field name="corr_ticket_complexity"/>
+                <field name="corr_ticket_response"/>
+                <field name="corr_ticket_resolution"/>
+              </group>
+              <group>
+                <field name="corr_ticket_point"/>
+                <field name="corr_ticket_rating"/>
+              </group>
+            </group>
+            <group string="Correlation Among Other Variables">
+              <group>
+                <field name="corr_priority_complexity"/>
+                <field name="corr_priority_response"/>
+                <field name="corr_priority_resolution"/>
+                <field name="corr_priority_point"/>
+                <field name="corr_priority_rating"/>
+              </group>
+              <group>
+                <field name="corr_complexity_response"/>
+                <field name="corr_complexity_resolution"/>
+                <field name="corr_complexity_point"/>
+                <field name="corr_complexity_rating"/>
+              </group>
+              <group>
+                <field name="corr_response_resolution"/>
+                <field name="corr_response_point"/>
+                <field name="corr_response_rating"/>
+              </group>
+               <group>
+                <field name="corr_resolution_point"/>
+                <field name="corr_resolution_rating"/>
+                <field name="corr_point_rating"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_eda_correlation" model="ir.actions.act_window">
+      <field name="name">Correlation Matrix (EDA)</field>
+      <field name="res_model">eda.correlation</field>
+      <field name="view_mode">form,tree</field>
+      <field name="res_id" eval="ref('eda_correlation_initial_record')"/>
+      <field name="target">current</field>
+      <field name="binding_model_id" ref="model_eda_correlation"/>
+    </record>
+
+    <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+    <menuitem id="menu_eda_correlation"
+              name="Correlation Analysis (EDA)"
+              parent="config_analisis_avg"
+              action="action_eda_correlation"
+              sequence="3"/>
+  </data>
+</odoo>

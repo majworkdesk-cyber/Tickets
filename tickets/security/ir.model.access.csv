@@ -1,0 +1,40 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_ticket_customer,Ticket Customer Read Only,model_ticket_name,tickets.group_customer_only,1,1,1,0
+access_state_customer,state Customer Read Only,model_state_name,tickets.group_customer_only,1,0,0,0
+access_point_customer,Point Customer Read Only,model_point_name,tickets.group_customer_only,1,1,0,0
+access_point_transaction_customer,Point Transaction Customer Read Only,model_point_transaction,tickets.group_customer_only,1,0,0,0
+access_problem_customer,Problem Customer Read Only,model_problem_name,tickets.group_customer_only,1,0,0,0
+access_definition_customer,definition Customer Read Only,model_definition_name,tickets.group_customer_only,1,0,0,0
+access_avg_ticket_customer,Average customer,model_avg_ticket,tickets.group_customer_only,1,1,1,0
+
+access_ticket_sales,Ticket Sales RW Create NoDel,model_ticket_name,tickets.group_sales,1,1,1,0
+access_state_sales,State Sales RW Create NoDel,model_state_name,tickets.group_sales,1,1,1,0
+access_point_sales,Point Sales RW Create NoDel,model_point_name,tickets.group_sales,1,1,1,0
+access_point_transaction_sales,Point Transaction Sales RW Create NoDel,model_point_transaction,tickets.group_sales,1,1,1,0
+access_problem_sales,Problem Sales RW Create NoDel,model_problem_name,tickets.group_sales,1,1,1,0
+access_definition_sales,definition Sales ReadOnly,model_definition_name,tickets.group_sales,1,0,0,0
+access_avg_ticket_sales,Average sales,model_avg_ticket,tickets.group_sales,1,1,1,0
+
+access_ticket_technician,Ticket Technician RW Create NoDel,model_ticket_name,tickets.group_technician,1,1,1,0
+access_state_technician,State Technician RW Create NoDel,model_state_name,tickets.group_technician,1,1,1,0
+access_point_technician,Point Technician RW Create NoDel,model_point_name,tickets.group_technician,1,1,1,0
+access_point_transaction_technician,Point Transaction Technician RW Create NoDel,model_point_transaction,tickets.group_technician,1,1,1,0
+access_problem_technician,Problem Technician RW Create NoDel,model_problem_name,tickets.group_technician,1,1,1,0
+access_definition_technician,definition Technician ReadOnly,model_definition_name,tickets.group_technician,1,0,0,0
+access_avg_ticket_technician,Average technician,model_avg_ticket,tickets.group_technician,1,1,1,0
+
+access_ticket_admin,Ticket Admin Full Access,model_ticket_name,tickets.group_admin,1,1,1,1
+access_state_admin,State Admin Full Access,model_state_name,tickets.group_admin,1,1,1,1
+access_point_admin,Point Admin Full Access,model_point_name,tickets.group_admin,1,1,1,1
+access_point_transaction_admin,Point Admin Full Access,model_point_transaction,tickets.group_admin,1,1,1,1
+access_problem_admin,Problem Admin Full Access,model_problem_name,tickets.group_admin,1,1,1,1
+access_definition_admin,Definition Admin Full Access,model_definition_name,tickets.group_admin,1,1,1,1
+
+access_avg_ticket_admin,Average Admin Full Access,model_avg_ticket,tickets.group_admin,1,1,1,1
+access_eda_std_admin,Standard Deviation Admin Full Access,model_eda_std,tickets.group_admin,1,1,1,1
+access_eda_correlation_admin,Analysis Correlation Admin Full Access,model_eda_correlation,tickets.group_admin,1,1,1,1
+access_normalization_admin,Data Normalization Admin Full Access,model_normalization_name,tickets.group_admin,1,1,1,1
+access_intelligent_kmeans_admin,Intelligent K-Means Admin Full Access,model_intelligent_kmeans,tickets.group_admin,1,1,1,1
+access_kmeans_result_admin,K-means Result Admin Full Access,model_kmeans_result,tickets.group_admin,1,1,1,1
+access_res_partner_admin,res.partner admin full,base.model_res_partner,tickets.group_admin,1,1,1,1

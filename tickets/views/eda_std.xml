@@ -1,0 +1,79 @@
+<odoo>
+  <data>
+<!-- Preload one empty STD record -->
+    <record id="eda_std_initial_record" model="eda.std">
+        <field name="calculation_date">2025-01-01 00:00:00</field>
+        <field name="std_priority_score">0.0</field>
+        <field name="std_response_time">0.0</field>
+        <field name="std_resolution_time">0.0</field>
+        <field name="std_min_point">0.0</field>
+        <field name="std_complexity_score">0.0</field>
+        <field name="std_rating_score">0.0</field>
+    </record>
+    <!-- === TREE VIEW === -->
+    <record id="view_eda_ticket_std_stats_tree" model="ir.ui.view">
+      <field name="name">eda.ticket.std.stats.tree</field>
+      <field name="model">eda.std</field>
+      <field name="arch" type="xml">
+        <tree string="Global STD History" create="false" edit="false" delete="true" default_order="calculation_date desc">
+          <field name="calculation_date"/>
+          <field name="std_priority_score"/>
+          <field name="std_response_time"/>
+          <field name="std_resolution_time"/>
+          <field name="std_min_point"/>
+          <field name="std_complexity_score"/>
+          <field name="std_rating_score"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- === FORM VIEW === -->
+    <record id="view_eda_ticket_std_stats_form" model="ir.ui.view">
+      <field name="name">eda.ticket.std.stats.form</field>
+      <field name="model">eda.std</field>
+      <field name="arch" type="xml">
+        <form string="STD Result Detail" create="false" edit="false">
+          <header>
+            <button name="action_recalculate_std"
+                    string="🔁 Recalculate STD"
+                    type="object"
+                    class="oe_highlight"/>
+          </header>
+          <sheet>
+            <group>
+              <field name="calculation_date" readonly="1"/>
+            </group>
+            <group string="Standard Deviation (σ) Results">
+              <group>
+                <field name="std_priority_score"/>
+                <field name="std_response_time"/>
+                <field name="std_resolution_time"/>
+              </group>
+              <group>
+                <field name="std_min_point"/>
+                <field name="std_complexity_score"/>
+                <field name="std_rating_score"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- === ACTION === -->
+    <record id="action_eda_ticket_std_stats" model="ir.actions.act_window">
+      <field name="name">Global STD History</field>
+      <field name="res_model">eda.std</field>
+      <field name="view_mode">tree,form</field>
+      <field name="target">current</field>
+    </record>
+
+    <!-- === MENU === -->
+    <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+    <menuitem id="menu_eda_global_std"
+              name="Global Standard Deviation (STD)"
+              parent="config_analisis_avg"
+              action="action_eda_ticket_std_stats"
+              sequence="2"/>
+  </data>
+</odoo>

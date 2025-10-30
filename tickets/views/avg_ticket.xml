@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_avg_ticket_tree" model="ir.ui.view">
+        <field name="name">avg.ticket.tree</field>
+        <field name="model">avg.ticket</field>
+        <field name="arch" type="xml">
+        <tree string="Average Ticket per Customer" create="false">
+            <field name="customer_name"/>
+            <field name="ticket_count"/>
+            <field name="avg_priority"/>
+            <field name="avg_complexity"/>
+            <field name="avg_response_time"/>
+            <field name="avg_resolution_time"/>
+            <field name="avg_point"/>
+            <field name="avg_rating"/>
+            <field name="last_computed"/>
+        </tree>
+        </field>
+    </record>
+
+    <record id="view_avg_ticket_form" model="ir.ui.view">
+        <field name="name">avg.ticket.form</field>
+        <field name="model">avg.ticket</field>
+        <field name="arch" type="xml">
+        <form string="Average Ticket per Customer" create="false">
+            <header>
+            <button name="action_refresh" type="object" string="Refresh" class="btn-primary"/>
+            </header>
+            <sheet>
+            <group>
+                <field name="customer_id" invisible="1"/>
+                <field name="customer_name"/>
+                <field name="ticket_count" readonly="1"/>
+            </group>
+            <group>
+                <field name="avg_priority"/>
+                <field name="avg_complexity"/>
+                <field name="avg_point"/>
+                <field name="avg_rating"/>
+            </group>
+            <group>
+                <field name="avg_response_time"/>
+                <field name="avg_resolution_time"/>
+                <field name="last_computed"/>
+            </group>
+            </sheet>
+        </form>
+        </field>
+    </record>
+
+    <record id="action_avg_ticket" model="ir.actions.act_window">
+        <field name="name">Average Ticket Summary</field>
+        <field name="res_model">avg.ticket</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- This Menu Item will appear in the Upper bar, that's why It needs NO parent or action -->
+    <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+    <menuitem id="config_analisis_avg" name="(EDA)" parent="ticket_menu_root" sequence="3" groups="tickets.group_admin,tickets.group_sales"/>
+    <!-- This Menu Item must have a parent and an action -->
+    <menuitem id="analisis_avg" name="Hasil Average" parent="config_analisis_avg" action="action_avg_ticket" sequence="1" groups="tickets.group_admin,tickets.group_sales"/>
+</odoo>

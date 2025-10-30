@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="normalization_name_view_tree" model="ir.ui.view">
+            <field name="name">normalization.name.tree</field>
+            <field name="model">normalization.name</field>
+            <field name="arch" type="xml">
+                <tree string="Normalized Customer Data" create="false" delete="false" edit="false">
+                    <field name="customer_id" string="Customer"/>
+                    
+                    <field name="norm_ticket_count" string="Z-Count"/>
+                    <field name="norm_priority" string="Z-Priority"/>
+                    <field name="norm_complexity" string="Z-Complexity"/>
+                    <field name="norm_response_time" string="Z-Response"/>
+                    <field name="norm_resolution_time" string="Z-Resolution"/>
+
+                    <field name="norm_point" string="Z-Point" widget="badge" decoration-success="norm_point &gt; 0.5" decoration-danger="norm_point &lt; -0.5"/>
+                    <field name="norm_rating" string="Z-Rating" widget="badge" decoration-success="norm_rating &gt; 0.5" decoration-danger="norm_rating &lt; -0.5"/>
+                    
+                    <field name="ticket_count" string="Orig-Count" optional="show"/>
+                    <field name="avg_priority" string="Orig-Priority" optional="show"/>
+                    <field name="avg_complexity" string="Orig-Complexity" optional="show"/>
+                    <field name="avg_response_time" string="Orig-Response" optional="show"/>
+                    <field name="avg_resolution_time" string="Orig-Resolution" optional="show"/>
+                    <field name="avg_point" string="Orig-Point" optional="show"/>
+                    <field name="avg_rating" string="Orig-Rating" optional="show"/>
+                    
+                    <field name="last_normalized" optional="show"/>
+                    <button name="action_refresh" type="object" icon="fa-refresh" string="Refresh Record"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="normalization_name_view_form" model="ir.ui.view">
+            <field name="name">normalization.name.form</field>
+            <field name="model">normalization.name</field>
+            <field name="arch" type="xml">
+                <form string="Normalized Data" create="false" edit="false">
+                    <header>
+                        <button name="action_refresh" type="object" string="Refresh Data" class="oe_highlight"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="customer_id" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="last_normalized" readonly="1"/>
+                            </group>
+                            <group>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Normalized Z-Scores (Output)">
+                                <group>
+                                    <field name="norm_ticket_count"/>
+                                    <field name="norm_priority"/>
+                                    <field name="norm_complexity"/>
+                                    <field name="norm_response_time"/>
+                                    <field name="norm_resolution_time"/>
+                                    <field name="norm_point"/>
+                                    <field name="norm_rating"/>
+                                 </group>
+                            </page>
+                            <page string="Original Average Values (Input)">
+                                <group>
+                                    <field name="ticket_count"/>
+                                    <field name="avg_priority"/>
+                                    <field name="avg_complexity"/>
+                                    <field name="avg_response_time"/>
+                                    <field name="avg_resolution_time"/>
+                                    <field name="avg_point"/>
+                                    <field name="avg_rating"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="normalization_name_action" model="ir.actions.act_window">
+            <field name="name">Normalized Data (K-Means)</field>
+            <field name="res_model">normalization.name</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Data Normalisasi Kosong
+                </p><p>
+                    Data ini dihasilkan secara otomatis dari data 'Average Ticket'.
+                    Anda bisa menjalankan 'Recompute All' dari model K-Means utama
+                    atau menjalankan 'recompute_all()' dari Odoo Shell.
+                </p>
+            </field>
+        </record>
+        <menuitem id="menu_name_normalization"
+              name="Normalization Result"
+              parent="ticket_menu_root"
+              action="normalization_name_action"
+              sequence="5"/>
+        </data>
+</odoo>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+   <data>
+        <record id="problem_form" model="ir.ui.view">
+            <field name="name">problem.form</field>
+            <field name="model">problem.name</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <!-- <field name="problem_def"/> -->
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="problem_tree" model="ir.ui.view">
+            <field name="name">problem.tree</field>
+            <field name="model">problem.name</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record id="problem_action" model="ir.actions.act_window">
+            <field name="name">Problem List</field>
+            <field name="res_model">problem.name</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+        <!-- This Menu Item Must have a parent -->
+        <menuitem id="config_menu_categ" name="config" parent="ticket_menu_root" sequence="2" groups="tickets.group_admin,tickets.group_sales"/>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="problem" name="Problems" parent="config_menu_categ" action="problem_action" sequence="10" groups="tickets.group_admin,tickets.group_sales"/>
+   </data>
+</odoo>

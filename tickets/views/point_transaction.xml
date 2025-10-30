@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+
+        <record id="point_transaction_form" model="ir.ui.view">
+            <field name="name">point.transaction.form</field>
+            <field name="model">point.transaction</field>
+            <field name="arch" type="xml">
+                <form string="Point Transaction">
+                    <sheet>
+                        <group>
+                            <field name="ticket_id" readonly="1"/>
+                            <field name="customer_id" readonly="1"/>
+                            <field name="point_id" readonly="1"/>
+                            <field name="used_point" readonly="1"/>
+                            <field name="problem_ticket"/>
+                            <field name="date" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="point_transaction_tree" model="ir.ui.view">
+            <field name="name">point.transaction.tree</field>
+            <field name="model">point.transaction</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="ticket_id"/>
+                    <field name="customer_id"/>
+                    <field name="point_id"/>
+                    <field name="used_point"/>
+                    <field name="problem_ticket"/>
+                    <field name="date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="point_transaction_action" model="ir.actions.act_window">
+            <field name="name">Point Transactions</field>
+            <field name="res_model">point.transaction</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+        <!-- This Menu Item Must have a parent -->
+        <menuitem id="config_menu_categ" name="config" parent="ticket_menu_root" sequence="2" groups="tickets.group_admin,tickets.group_sales"/>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="point_menu_transaction" name="Points Transaction" parent="config_menu_categ" action="point_transaction_action" sequence="6" groups="tickets.group_admin,tickets.group_sales"/>
+
+    </data>
+</odoo>
