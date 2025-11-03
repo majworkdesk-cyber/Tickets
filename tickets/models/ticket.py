@@ -309,9 +309,10 @@ class Ticketing(models.Model):
     def _check_states_by_customer(self):
         for rec in self:
             if self.env.user.has_group('tickets.group_customer_only'):
-                if rec.states and rec.states.name not in ['Submit', 'Cancel']:
-                    raise ValidationError("Customer tidak diizinkan mengubah status tiket.")
+                # if rec.states and rec.states.name not in ['Submit']:
+                raise ValidationError("Customer tidak diizinkan mengubah status tiket.")
                 
+
     def write(self, vals):
         new_state = None
         if 'states' in vals and vals['states']:
@@ -377,6 +378,7 @@ class Ticketing(models.Model):
         user = self.env.user
         customer_id = vals.get('customer_name_id')
         category_id = vals.get('category')
+        definition_id= vals.get('definition')
         min_point = vals.get('min_point', 0)
 
         # if customer_id:
@@ -396,11 +398,14 @@ class Ticketing(models.Model):
 
         # Validasi: Customer harus dipilih
         if not customer_id:
-            raise ValidationError("Customer harus diisi.")
+            raise ValidationError("Customer field is Empty, please fill the field first.")
 
         # Validasi: Kategori harus diisi
         if not category_id:
-            raise ValidationError("Field Category Kosong harus diisi.")
+            raise ValidationError("Field Category is Empty, please fill the field first.")
+
+        if not definition_id :
+            raise ValidationError("Field Problem Definition is Empty, please fill the field first.")
 
         # Cari point.name berdasarkan customer + category (product_point)
         point_obj = self.env['point.name'].search([
