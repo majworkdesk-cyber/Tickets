@@ -20,6 +20,8 @@ class TicketDashboard extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
+        // tambahkan service user untuk ambil partner id
+        this.user = useService("user");
         this.charts = {};
         
         // State untuk Filter Tanggal & Sorting Customer
@@ -27,7 +29,11 @@ class TicketDashboard extends Component {
             startDate: '2020-01-01', 
             endDate: this.formatDate(new Date()),
             // State baru untuk sorting customer: 'desc' (default) atau 'asc'
-            customerSort: 'desc', 
+            customerSort: 'desc',
+            // tambahan state untuk product dropdown
+            productList: [],
+            selectedProductId: null,
+            selectedProductPoint: 0,
         });
 
         // Refs
@@ -46,7 +52,60 @@ class TicketDashboard extends Component {
             if (window.Chart && window.ChartDataLabels) {
                 Chart.register(window.ChartDataLabels);
             }
+
+            // --- ambil daftar produk/poin buat dropdown (sesuai model point.name)
+            try {
+                // dapatkan partner id dari this.user
+                let partnerId = this.user && this.user.partnerId;
+                if (!partnerId) {
+                    const uid = this.user && this.user.userId;
+                    if (uid) {
+                        const ud = await this.orm.read("res.users", [uid], ["partner_id"]);
+                        if (ud && ud.length && ud[0].partner_id) partnerId = ud[0].partner_id[0];
+                    }
+                }
+                if (partnerId) {
+                    // ambil product_point (Many2one ke problem.name) dan name (nilai poin)
+                    const productData = await this.orm.searchRead(
+                        "point.name",
+                        [["customer_id", "=", partnerId]],
+                        ["product_point", "name", "expired_date"]
+                    );
+                    const now = new Date();
+                    const uniqueProducts = {};
+                    productData.forEach(p => {
+                        // Lewati data kalau expired_date sudah lewat
+                        if (p.expired_date && new Date(p.expired_date) < now) return;
+                    
+                        if (p.product_point) {
+                            const prodId = p.product_point[0];
+                            const prodName = p.product_point[1];
+                            if (!uniqueProducts[prodId]) uniqueProducts[prodId] = { name: prodName, total: 0 };
+                            uniqueProducts[prodId].total += (p.name || 0);
+                        }
+                    });
+                    this.state.productList = Object.entries(uniqueProducts).map(([id, data]) => ({
+                        id: parseInt(id),
+                        name: data.name,
+                        total: data.total,
+                    }));
+                }
+            } catch (err) {
+                console.error("Gagal ambil data produk:", err);
+            }
         });
+
+        // handler dropdown product
+        this.onProductChange = (ev) => {
+            const id = ev && ev.target && Number(ev.target.value) || null;
+            this.state.selectedProductId = id;
+            if (!id) {
+                this.state.selectedProductPoint = 0;
+                return;
+            }
+            const found = this.state.productList.find(p => p.id === id);
+            this.state.selectedProductPoint = found ? found.total : 0;
+        };
 
         onMounted(() => {
             this.renderCharts();
@@ -338,9 +397,9 @@ class TicketDashboard extends Component {
                 maintainAspectRatio:false,
                 plugins:{
                     title:{display:true,text:title},
-                    datalabels:{formatter:(value)=>{if(!total||value===0)return'';const percent=((value/total)*100).toFixed(1);return`${Math.round(value)} (${percent}%)`;}, color:'#fff', font:{weight:'bold',size:10}},
+                    datalabels:{formatter:(value)=>{if(!total||value===0)return'';const percent=((value/total)*100).toFixed(1);return`${Math.round(value)} (${percent}%)`;}, color:'#fff', font:{weight:'bold',size:10}}},
                     legend:{position:'top'}
-                },
+                ,
                 onClick:(event,elements)=>{if(!elements.length)return;const idx=elements[0].index;const ratingMap=["worst","bad","medium","good","excellent"];const ratingValue=ratingMap[idx];const clickDomain=[[fieldName,'=',ratingValue]];this.openTicketListView({name:`${title}: ${ratingValue.toUpperCase()}`,domain:baseDomain.concat(clickDomain)});}
             }
         });
@@ -350,7 +409,23 @@ class TicketDashboard extends Component {
 // --- XML Template ---
 TicketDashboard.template = xml`
 <div class="o_ticket_dashboard" style="padding:20px; height:100vh; overflow-y:auto; background:#f8f9fa;">
-    <h2 style="color:#875A7B; margin-bottom:20px; text-align:center;">📊 Ticket Dashboard</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="color:#875A7B; margin-bottom:0;">📊 Ticket Dashboard</h2>
+
+        <!-- Produk dropdown kecil di kanan atas (t-key ditambahkan) -->
+        <div style="display:flex; align-items:center; gap:10px;">
+            <label style="font-weight:bold; color:#555;">Product:</label>
+            <select t-on-change="onProductChange" style="padding:6px 8px; border-radius:6px; border:1px solid #ccc; font-size:13px; width:220px;">
+                <option value="">-- Select Product --</option>
+                <t t-foreach="state.productList" t-as="p" t-key="p.id">
+                    <option t-att-value="p.id"><t t-esc="p.name"/></option>
+                </t>
+            </select>
+            <div style="font-weight:bold; color:#2e7d32; font-size:18px;">
+                Points: <t t-esc="state.selectedProductPoint"/>
+            </div>
+        </div>
+    </div>
 
     <div style="display:flex; justify-content:center; align-items:center; margin-bottom:30px; gap:15px; background:white; padding:15px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
         <label for="startDate" style="font-weight:bold; color:#555;">Mulai Tanggal:</label>
