@@ -52,7 +52,7 @@ class IntelligentKmeans(models.Model):
     silhouette_results = fields.Html(string='Silhouette Results', readonly=True)
     wcss_data = fields.Text(string='WCSS Data (Raw)', readonly=True)
     silhouette_data = fields.Text(string='Silhouette Data (Raw)', readonly=True)
-    elbow_chart = fields.Binary(string="Elbow Method Chart", readonly=True) # Keep Elbow chart
+    elbow_chart = fields.Binary(string="Elbow Method Chart", readonly=True) 
 
     # --- Step 2 Fields (Final Clustering) ---
     chosen_k = fields.Integer(string='Chosen k', default=3, required=True, help="Select the best 'k'.")

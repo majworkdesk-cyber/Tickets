@@ -72,24 +72,41 @@ class Ticketing(models.Model):
     @api.depends('customer_name_id', 'category')
     def _compute_expired_ticket(self):
         for rec in self:
-            rec.expired_ticket = False
-
-            if rec.customer_name_id and rec.category:
-                point_obj = self.env['point.name'].search([
-                    ('customer_id', '=', rec.customer_name_id.id),
-                    ('product_point', '=', rec.category.id)
-                ], limit=1)
-
-                if point_obj and point_obj.expired_date:
-                    rec.expired_ticket = point_obj.expired_date
+            # Tanggal hangus tiket ini = tanggal hangus dari record poin
+            # yang sudah ditemukan oleh _compute_points_id
+            rec.expired_ticket = rec.points_id.expired_date or False
 
     @api.depends('customer_name_id', 'category')
     def _compute_points_id(self):
         for rec in self:
-            point = self.env['point.name'].search([
+            rec.points_id = False  # Set default
+            
+            if not rec.customer_name_id or not rec.category:
+                continue
+
+            # Domain untuk mencari poin yang valid:
+            # 1. Cocokkan customer dan kategori
+            # 2. Poinnya masih ada (name > 0)
+            # 3. Belum hangus (expired_date = False ATAU expired_date > sekarang)
+            domain = [
                 ('customer_id', '=', rec.customer_name_id.id),
-                ('product_point', '=', rec.category.id)
-            ], limit=1)
+                ('product_point', '=', rec.category.id),
+                ('name', '>', 0),
+                '|',
+                    ('expired_date', '=', False),
+                    ('expired_date', '>', fields.Datetime.now())
+            ]
+
+            # Cari record poin yang akan hangus PALING DEKAT
+            # 'order='expired_date asc'' artinya:
+            # - Urutkan berdasarkan expired_date (asc = dari yang tercepat hangus)
+            # - Tanggal NULL (yang tidak punya expired date) otomatis ditaruh di akhir
+            point = self.env['point.name'].search(
+                domain,
+                order='expired_date asc', # <-- INI PERBAIKANNYA
+                limit=1
+            )
+            
             rec.points_id = point
 
     @api.onchange('category', 'customer_name_id')
@@ -108,7 +125,7 @@ class Ticketing(models.Model):
                         }
                     }
 
-    point_value = fields.Integer(string='Ticket Available', compute="_compute_values")
+    point_value = fields.Float(string='Ticket Available', compute="_compute_values")
     
     @api.depends('points_id')
     def _compute_values(self):
@@ -128,10 +145,10 @@ class Ticketing(models.Model):
 
     color = fields.Integer(string="Color Index")
 
-    states_readonly = fields.Boolean(
-        string="Is State Readonly",
-        compute="_compute_states_readonly"
-    )
+    # states_readonly = fields.Boolean(
+    #     string="Is State Readonly",
+    #     compute="_compute_states_readonly"
+    # )
 
     customer_rating = fields.Selection(string='Customer Rating', selection=[
         ('no', 'No'),
@@ -228,22 +245,11 @@ class Ticketing(models.Model):
         else:
             self.customer_name = False
 
-    @api.depends('states', 'points_id.name')
-    def _compute_states_readonly(self):
-        for rec in self:
-            user = self.env.user
-
-            # Jika user adalah customer, selalu readonly
-            if user.has_group('tickets.group_customer_only'):
-                rec.states_readonly = True
-
-            # Jika states ada dan bernama 'Cancel' atau 'Submit', boleh edit (readonly=False)
-            elif rec.states and rec.states.name in ['Cancel', 'Submit']:
-                rec.states_readonly = False
-
-            # Jika tidak ada poin atau poinnya nol, maka readonly
-            else:
-                rec.states_readonly = not rec.points_id or rec.points_id.name == 0
+    # @api.depends('states', 'points_id.name')
+    # def _compute_states_readonly(self):
+    #     for rec in self:
+    #         user = self.env.user
+    #         rec.states_readonly = user.has_group('tickets.group_customer_only')
 
     @api.depends('states')
     def _compute_states(self):
@@ -309,34 +315,8 @@ class Ticketing(models.Model):
     def _check_states_by_customer(self):
         for rec in self:
             if self.env.user.has_group('tickets.group_customer_only'):
-                # if rec.states and rec.states.name not in ['Submit']:
-                raise ValidationError("Customer tidak diizinkan mengubah status tiket.")
-                
-
-    def write(self, vals):
-        new_state = None
-        if 'states' in vals and vals['states']:
-            new_state = self.env['state.name'].browse(vals['states'])
-
-        is_customer_group = self.env.user.has_group('tickets.group_customer_only')
-
-        for record in self:
-            # Jika user termasuk group customer dan ingin ubah state apa pun → tolak
-            if is_customer_group and 'states' in vals:
-                raise ValidationError("Customer tidak diperbolehkan mengubah status tiket.")
-
-            # Lewati validasi jika status target adalah Submit atau Cancel
-            if new_state and new_state.name in ['Submit', 'Cancel']:
-                continue
-
-            # if 'states' in vals:
-            #     current_points = self.env['point.name'].browse(record.name)
-            #     if not current_points or current_points <= 0:
-            #         raise ValidationError(
-            #             "Tidak bisa ubah status karena Point tidak cukup (0 atau tidak tersedia)."
-            #         )
-
-        return super().write(vals)
+                if rec.states and rec.states.name not in ['Submit']:
+                    raise ValidationError("Customer tidak diizinkan mengubah status tiket.")
 
     @api.constrains('submitted_date', 'expired_ticket')
     def _check_ticket_expiry(self):
@@ -414,8 +394,14 @@ class Ticketing(models.Model):
         ], limit=1)
 
         # Kalau tidak ditemukan, GAGAL buat tiket (dilarang create baru di sini)
-        # if not point_obj:
-        #     raise ValidationError("Customer belum memiliki alokasi tiket poin untuk kategori ini.")
+        if not point_obj:
+            raise ValidationError("Customer belum memiliki alokasi tiket poin untuk kategori ini.")
+
+        if point_obj.name <= 0.00:
+            raise ValidationError(
+                _("Poin customer untuk kategori ini adalah %(balance)s. Tidak dapat membuat tiket baru.", 
+                  balance=point_obj.name)
+            )
 
         # Set ke field points_id
         vals['points_id'] = point_obj.id
@@ -426,6 +412,9 @@ class Ticketing(models.Model):
 
         # Buat tiket
         record = super().create(vals)
+
+        if record.point_value == 0.00:
+            raise ValidationError("Customer Have No Ticket Available Please Contact Sales To Confirm Ticket")
 
         # Buat nomor tiket baru setelah semua validasi lulus
         # if record.name in (False, 'Submit', '/'):
@@ -562,40 +551,6 @@ class Ticketing(models.Model):
     #     rec._post_chatter(msg)
     #     return rec
 
-    def write(self, vals):
-        messages = []
-        for rec in self:
-            msg_parts = []
-
-            if 'problem_id' in vals and vals['problem_id'] != rec.problem_id:
-                a = self.env['problem.name'].search([
-                    ('id', '=', vals['problem_id'])]).name
-                msg_parts.append(f"<b>Name:</b> '{rec.problem_id.name}' → '{a}'")
-
-            if 'problem_description' in vals and vals['problem_description'] != rec.problem_description:
-                msg_parts.append(
-                    f"<b>Description:</b> '{rec.problem_description}' → '{vals['problem_description']}'"
-                )
-
-            if msg_parts:
-                message = (
-                    f"✏️ Problem Description diperbarui:<br/> ✏️" +
-                    "<br/>".join(msg_parts)
-                )
-                messages.append((rec.name, message))
-
-        res = super().write(vals)
-
-        # Post lognote setelah write
-        if messages:
-            all_msg = "<br/><br/>".join([msg for _, msg in messages])
-            rec.message_post(
-                body=all_msg,
-                message_type='comment',
-                subtype_xmlid='mail.mt_note'
-    )
-        return res
-
     # def unlink(self):
     #     for rec in self:
     #         rec._post_chatter(f"🗑️ Problem Description dihapus: <b>{rec.problem_id}</b>")
@@ -603,8 +558,75 @@ class Ticketing(models.Model):
     #     return super().unlink()\
     
     def write(self, vals):
+        # --- Persiapan (dari write #1 dan #2) ---
+        new_state = None
+        if 'states' in vals and vals['states']:
+            new_state = self.env['state.name'].browse(vals['states'])
+        
+        is_customer_group = self.env.user.has_group('tickets.group_customer_only')
+        
+        messages = [] # Untuk chatter
+
+        # --- Validasi & Persiapan Chatter (Harus sebelum super().write) ---
+        for record in self:
+            
+            # --- Logika Keamanan (dari write #1) ---
+            # Jika user termasuk group customer dan ingin ubah state apa pun → tolak
+            if is_customer_group and 'states' in vals:
+                raise ValidationError("Customer tidak diperbolehkan mengubah status tiket.")
+
+            # --- LOGIKA BARU: Tidak bisa kembali ke Submit ---
+            # Cek jika *siapapun* mencoba memindahkan ke 'Submit'
+            if is_customer_group:
+                # Dan mereka mencoba memindahkan ke 'Submit'
+                if new_state and new_state.name == 'Submit':
+                    # Dan state lamanya adalah salah satu dari ini
+                    if record.states.name in ['Progress', 'Finish', 'Cancel']:
+                        raise ValidationError(
+                            _("Tiket yang sudah di-Proses, Selesai, atau Batal tidak bisa dikembalikan ke Submit.")
+                        )
+
+            # --- Logika Chatter (dari write #2) ---
+            msg_parts = []
+
+            # Logika 'problem_id' (Anda comment di kode Anda, jadi saya comment juga)
+            # if 'problem_id' in vals and vals['problem_id'] != record.problem_id:
+            #     a = self.env['problem.name'].search([
+            #         ('id', '=', vals['problem_id'])]).name
+            #     msg_parts.append(f"<b>Name:</b> '{record.problem_id.name}' → '{a}'")
+
+            if 'problem_description' in vals and vals['problem_description'] != record.problem_description:
+                msg_parts.append(
+                    f"<b>Description:</b> '{record.problem_description}' → '{vals['problem_description']}'"
+                )
+
+            if msg_parts:
+                message = (
+                    f"✏️ Problem Description diperbarui:<br/> ✏️" +
+                    "<br/>".join(msg_parts)
+                )
+                # Menyimpan record-nya, bukan cuma nama, agar bisa post chatter
+                messages.append((record, message)) 
+
+        # --- Panggil super().write() HANYA SATU KALI ---
         res = super().write(vals)
-        self._update_avg_ticket_auto()
+
+        # --- Logika Setelah Simpan (dari write #2 dan #3) ---
+
+        # Logika dari write #3 (Avg Ticket)
+        # 'self' di sini adalah semua record, jadi panggil _update_avg_ticket_auto()
+        if res:
+            self._update_avg_ticket_auto()
+
+        # Logika dari write #2 (Posting Chatter)
+        if messages:
+            for rec, message in messages: # Loop dari messages yang sudah disiapkan
+                rec.message_post(
+                    body=message,
+                    message_type='comment',
+                    subtype_xmlid='mail.mt_note'
+                )
+
         return res
 
     def _update_avg_ticket_auto(self):

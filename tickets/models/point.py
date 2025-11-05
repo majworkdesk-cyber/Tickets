@@ -9,7 +9,7 @@ class Point(models.Model):
     _name = 'point.name'
     _description = 'Point'
 
-    name = fields.Integer(string='Points')
+    name = fields.Float(string='Points')
     # ticket_id = fields.Many2one(comodel_name='ticket.name', string='Ticket')
     product_point = fields.Many2one(comodel_name='problem.name', string='Produk')
     
@@ -17,7 +17,7 @@ class Point(models.Model):
 
     expired_date = fields.Datetime('Expired date')
 
-    total_min_points = fields.Integer(
+    total_min_points = fields.Float(
         string="Total Used Tiket Poin",
         compute="_compute_total_min_points",
         store=True

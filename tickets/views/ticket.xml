@@ -49,12 +49,12 @@
                         groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"
                         attrs="{'invisible': [('states', '=', 4 )]}"
                         />
-                   <field name="states" widget="statusbar" attrs="{'readonly': [('states_readonly', '=', True)]}"/>
+                   <field name="states" widget="statusbar"/>
                     </header>
                     <sheet>
                         <group>
                             <group>
-                                <field name="states_readonly" invisible="1"/>
+                                <!-- <field name="states_readonly" invisible="1"/> -->
                                 <field name="calculate_bool" invisible="1"/>
                                 <field name="name"/>
                                 <field name="customer_name_id" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
