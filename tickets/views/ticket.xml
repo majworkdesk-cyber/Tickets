@@ -57,14 +57,14 @@
                                 <!-- <field name="states_readonly" invisible="1"/> -->
                                 <field name="calculate_bool" invisible="1"/>
                                 <field name="name"/>
-                                <field name="customer_name_id" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
+                                <field name="customer_name_id" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician" attrs="{'readonly': [('states', 'in', [2,3,4])]}"/>
                                 <field name="customer_name_id" groups="tickets.group_customer_only" invisible="1"/>
                                 <field name="customer_name" readonly="True"/>
                                 <field name="priority" widget="priority" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
                                 <field name="priority" widget="priority" groups="tickets.group_customer_only" invisible="1"/>
                                 <field name="complexity" widget="priority" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician"/>
                                 <field name="complexity" widget="priority" groups="tickets.group_customer_only" invisible="1"/>
-                                <field name="sales_person_id" attrs="{'readonly': True}" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="sales_person_id"/>
                                 <!-- <field name="sales_person_id"
                                     groups="tickets.group_admin,tickets.group_sales"
                                     readonly="0"
@@ -84,8 +84,8 @@
                                 <field name="finish_date" groups="tickets.group_sales,tickets.group_technician" attrs="{'readonly': True}"/>
                                 <field name="finish_date" groups="tickets.group_customer_only" attrs="{'readonly': True}"/>
                                 <field name="work_day" groups="tickets.group_admin,tickets.group_sales,tickets.group_technician" attrs="{'readonly': True}"/>
-                                <field name="technician" groups="tickets.group_admin"/>
-                                <field name="technician" groups="tickets.group_sales,tickets.group_technician"/>
+                                <field name="technician" groups="tickets.group_admin" attrs="{'readonly': [('states', 'in', [2,3,4])]}"/>
+                                <field name="technician" groups="tickets.group_sales,tickets.group_technician" attrs="{'readonly': [('states', 'in', [2,3,4])]}"/>
                                 <field name="technician" groups="tickets.group_customer_only" attrs="{'readonly': True}" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="tech_note" groups="tickets.group_admin"/>
                                 <field name="tech_note" groups="tickets.group_sales" attrs="{'readonly': True}"/>
@@ -108,10 +108,10 @@
                                                 <create name="add_problem_line" string="Add New Problem 🚨 "/>
                                             </control>  -->
                                             <!-- <field name="problem_id"/> -->
-                                            <field name="definition"/>
+                                            <field name="definition" attrs="{'readonly': [('states', 'in', [2,3,4])]}"/>
                                             <field name="remark_name" readonly="True"/>
-                                            <field name="problem_description"/>
-                                            <field name="photo_prove" widget='image' options="{'size': [150,150]}"  />
+                                            <field name="problem_description" attrs="{'readonly': [('states', 'in', [2,3,4])]}"/>
+                                            <field name="photo_prove" widget='image' options="{'size': [150,150]}" attrs="{'readonly': [('states', 'in', [2,3,4])]}"/>
                                         </group>
                                 </page>
                             </notebook>
@@ -312,7 +312,7 @@
             <field name="view_mode">kanban,tree,form</field>
         </record>
     <!-- This Menu Item will appear in the Upper bar, that's why It needs NO parent or action -->
-    <menuitem id="ticket_menu_root" name="Tickets" sequence="1"/>
+    <menuitem id="ticket_menu_root" name="Tickets" sequence="1" web_icon="tickets,static/img/Ticket Icon.png"/>
     <!-- This Menu Item Must have a parent -->
     <menuitem id="ticket_menu_categ" name="Menu Ticket" parent="ticket_menu_root" sequence="1"/>
     <!-- This Menu Item must have a parent and an action -->

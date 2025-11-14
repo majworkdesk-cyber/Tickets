@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="about_program_record" model="about_program">
+            <field name="creator_name">Michael Angelo</field>
+            <field name="college_mentor">Dr. Bagus Mulyawan, S.Kom., M.M.</field>
+            <field name="program_title">Ticket Service</field>
+            <field name="program_description">Modul Ticket Service merupakan sistem manajemen tiket berbasis Odoo 16 yang terintegrasi dengan analisis data menggunakan metode Intelligent K-Means dan EDA. Sistem ini tidak hanya mengelola tiket pelanggan secara otomatis, tetapi juga mampu melakukan analisis klaster pelanggan secara cerdas, menampilkan visualisasi interaktif, dan membantu pengambilan keputusan bisnis berbasis data.</field>
+        </record>
+
+        <record id="about_program_form" model="ir.ui.view">
+            <field name="name">About Program</field>
+            <field name="model">about_program</field>
+            <field name="arch" type="xml">
+                <form string="About Program" create="0" edit="0" delete="0">
+                    <sheet>
+
+                        <field name="name" 
+                        invisible="1"
+                        />
+
+                        <div style="font-size:50px; font-weight:bold;">
+                            Program Creator Name:
+                        </div>
+                        <div style="font-size:20px; font-weight:bold;">
+                            <field name="creator_name" readonly="1"/>
+                        </div>
+
+                        <div style="font-size:50px; font-weight:bold; margin-top:30px;">
+                            Colleger Mentor:
+                        </div>
+                        <div style="font-size:20px; font-weight:bold;">
+                            <field name="college_mentor" readonly="1"/>
+                        </div>
+
+                        <div style="font-size:50px; font-weight:bold; margin-top:30px;">
+                            Program Title:
+                        </div>
+                        <div style="font-size:20px; font-weight:bold;">
+                            <field name="program_title" readonly="1"/>
+                        </div>
+
+                        <div style="font-size:50px; font-weight:bold; margin-top:30px;">
+                            About Ticket Service Module:
+                        </div>
+                        <div style="font-size:20px; font-weight:bold;">
+                            <field name="program_description" readonly="1"/>
+                        </div>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="about_program_action" model="ir.actions.act_window">
+            <field name="name">About Program</field>
+            <field name="res_model">about_program</field>
+            <field name="res_id" ref="about_program_record"/>
+            <field name="view_mode">form</field>
+            <field name="target">current</field>
+        </record>
+
+        <menuitem id="ticket_menu_root"
+                  name="Tickets"
+                  sequence="1"
+                  web_icon="tickets,static/img/Ticket Icon.png"/>
+
+        <menuitem id="about_program_menu_act"
+                  name="About Program"
+                  parent="ticket_menu_root"
+                  action="about_program_action"
+                  sequence="20"/>
+
+    </data>
+</odoo>

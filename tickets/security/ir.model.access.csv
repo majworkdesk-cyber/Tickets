@@ -7,6 +7,7 @@ access_point_transaction_customer,Point Transaction Customer Read Only,model_poi
 access_problem_customer,Problem Customer Read Only,model_problem_name,tickets.group_customer_only,1,0,0,0
 access_definition_customer,definition Customer Read Only,model_definition_name,tickets.group_customer_only,1,0,0,0
 access_avg_ticket_customer,Average customer,model_avg_ticket,tickets.group_customer_only,1,1,1,0
+access_about_program_customer,About Program customer full Acces,model_about_program,tickets.group_customer_only,1,0,0,0
 
 access_ticket_sales,Ticket Sales RW Create NoDel,model_ticket_name,tickets.group_sales,1,1,1,0
 access_state_sales,State Sales RW Create NoDel,model_state_name,tickets.group_sales,1,1,1,0
@@ -15,6 +16,7 @@ access_point_transaction_sales,Point Transaction Sales RW Create NoDel,model_poi
 access_problem_sales,Problem Sales RW Create NoDel,model_problem_name,tickets.group_sales,1,1,1,0
 access_definition_sales,definition Sales ReadOnly,model_definition_name,tickets.group_sales,1,0,0,0
 access_avg_ticket_sales,Average sales,model_avg_ticket,tickets.group_sales,1,1,1,0
+access_about_program_sales,About Program sales full Acces,model_about_program,tickets.group_sales,1,0,0,0
 
 access_ticket_technician,Ticket Technician RW Create NoDel,model_ticket_name,tickets.group_technician,1,1,1,0
 access_state_technician,State Technician RW Create NoDel,model_state_name,tickets.group_technician,1,1,1,0
@@ -23,6 +25,7 @@ access_point_transaction_technician,Point Transaction Technician RW Create NoDel
 access_problem_technician,Problem Technician RW Create NoDel,model_problem_name,tickets.group_technician,1,1,1,0
 access_definition_technician,definition Technician ReadOnly,model_definition_name,tickets.group_technician,1,0,0,0
 access_avg_ticket_technician,Average technician,model_avg_ticket,tickets.group_technician,1,1,1,0
+access_about_program_technician,About Program techinicain full Acces,model_about_program,tickets.group_technician,1,0,0,0
 
 access_ticket_admin,Ticket Admin Full Access,model_ticket_name,tickets.group_admin,1,1,1,1
 access_state_admin,State Admin Full Access,model_state_name,tickets.group_admin,1,1,1,1
@@ -38,3 +41,4 @@ access_normalization_admin,Data Normalization Admin Full Access,model_normalizat
 access_intelligent_kmeans_admin,Intelligent K-Means Admin Full Access,model_intelligent_kmeans,tickets.group_admin,1,1,1,1
 access_kmeans_result_admin,K-means Result Admin Full Access,model_kmeans_result,tickets.group_admin,1,1,1,1
 access_res_partner_admin,res.partner admin full,base.model_res_partner,tickets.group_admin,1,1,1,1
+access_about_program_admin,About Program admin full Acces,model_about_program,tickets.group_admin,1,0,0,0

@@ -48,6 +48,7 @@
         'views/normalization.xml',
         'views/kmeans_result.xml',
         'views/kmeans_menu.xml',
+        'views/about_program.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

@@ -15,3 +15,4 @@ from . import eda_correlation
 from . import normalization
 from . import kmeans_result
 from . import intelligent_kmeans
+from . import about_program

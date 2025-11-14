@@ -31,23 +31,31 @@ class Ticketing(models.Model):
         'res.partner',
         string='Technician',
         store=True,
+        domain="[('contact_role', '=', 'Technician')]"
     )
     customer_name_id = fields.Many2one(
-    'res.partner', 
-    string="Customer", 
-    default=lambda self: self.env.user.partner_id,)
-    customer_name = fields.Char(string="Client", compute='_compute_customer_name_id')
+        'res.partner',
+        string="Customer",
+        default=lambda self: self.env.user.partner_id,)
+    customer_name = fields.Char(
+        string="Client", compute='_compute_customer_name_id')
     tech_note = fields.Char(string='Technician Note')
-    submitted_date = fields.Datetime(string='Submit Date', default=fields.Datetime.now )
+    submitted_date = fields.Datetime(
+        string='Submit Date', default=fields.Datetime.now)
     progress_date = fields.Datetime(string='On Progress Date')
-    response_time_days = fields.Integer(string="Response Time (Days)", compute="_compute_response_time", store=True)
-    response_time_hours = fields.Float(string="Response Time (Hours)", compute="_compute_response_time_hour", store=True)
-    response_time_minutes = fields.Float(string="Response Time (Minutes)", compute="_compute_response_time_minute", store=True)
+    response_time_days = fields.Integer(
+        string="Response Time (Days)", compute="_compute_response_time", store=True)
+    response_time_hours = fields.Float(
+        string="Response Time (Hours)", compute="_compute_response_time_hour", store=True)
+    response_time_minutes = fields.Float(
+        string="Response Time (Minutes)", compute="_compute_response_time_minute", store=True)
     finish_date = fields.Datetime(string='Finished Date')
-    work_day = fields.Integer(string='Work Days', compute="_compute_work_days", store=True)
-    
+    work_day = fields.Integer(
+        string='Work Days', compute="_compute_work_days", store=True)
+
     manual_min_point = fields.Float(string='Manual Point Override', )
-    min_point = fields.Float(string='Ticket Usage', compute='_compute_min_point', inverse='_inverse_min_point', store=True,)
+    min_point = fields.Float(
+        string='Ticket Usage', compute='_compute_min_point', inverse='_inverse_min_point', store=True,)
 
     points_id = fields.Many2one(
         'point.name',
@@ -57,16 +65,16 @@ class Ticketing(models.Model):
     )
 
     category = fields.Many2one(
-    'problem.name',
-    string='Kategori',
-    store=True,
-    # required=True
+        'problem.name',
+        string='Kategori',
+        store=True,
+        # required=True
     )
 
     expired_ticket = fields.Datetime(
-    string='Expired Ticket',
-    compute='_compute_expired_ticket',
-    store=True,
+        string='Expired Ticket',
+        compute='_compute_expired_ticket',
+        store=True,
     )
 
     @api.depends('customer_name_id', 'category')
@@ -80,7 +88,7 @@ class Ticketing(models.Model):
     def _compute_points_id(self):
         for rec in self:
             rec.points_id = False  # Set default
-            
+
             if not rec.customer_name_id or not rec.category:
                 continue
 
@@ -93,8 +101,8 @@ class Ticketing(models.Model):
                 ('product_point', '=', rec.category.id),
                 ('name', '>', 0),
                 '|',
-                    ('expired_date', '=', False),
-                    ('expired_date', '>', fields.Datetime.now())
+                ('expired_date', '=', False),
+                ('expired_date', '>', fields.Datetime.now())
             ]
 
             # Cari record poin yang akan hangus PALING DEKAT
@@ -103,10 +111,10 @@ class Ticketing(models.Model):
             # - Tanggal NULL (yang tidak punya expired date) otomatis ditaruh di akhir
             point = self.env['point.name'].search(
                 domain,
-                order='expired_date asc', # <-- INI PERBAIKANNYA
+                order='expired_date asc',  # <-- INI PERBAIKANNYA
                 limit=1
             )
-            
+
             rec.points_id = point
 
     @api.onchange('category', 'customer_name_id')
@@ -125,13 +133,14 @@ class Ticketing(models.Model):
                         }
                     }
 
-    point_value = fields.Float(string='Ticket Available', compute="_compute_values")
-    
+    point_value = fields.Float(
+        string='Ticket Available', compute="_compute_values")
+
     @api.depends('points_id')
     def _compute_values(self):
         for record in self:
             record.point_value = record.points_id.name
-    
+
     states = fields.Many2one(
         'state.name',
         string='Status',
@@ -152,12 +161,12 @@ class Ticketing(models.Model):
 
     customer_rating = fields.Selection(string='Customer Rating', selection=[
         ('no', 'No'),
-        ('worst', 'Worst'), 
-        ('bad', 'Bad'), 
-        ('medium', 'Medium'), 
-        ('good', 'Good'), 
+        ('worst', 'Worst'),
+        ('bad', 'Bad'),
+        ('medium', 'Medium'),
+        ('good', 'Good'),
         ('excellent', 'Excellent')])
-    
+
     priority = fields.Selection([
         ('low', 'Low'),
         ('medium', 'Medium'),
@@ -236,7 +245,7 @@ class Ticketing(models.Model):
                 record.work_day = delta.days
             else:
                 record.work_day = 0
-            
+
     # nama customer auto
     @api.depends('customer_name_id')
     def _compute_customer_name_id(self):
@@ -255,23 +264,25 @@ class Ticketing(models.Model):
     def _compute_states(self):
         for rec in self:
             if not rec.states:
-                rec.states = self.env['state.name'].search([('fold', '=', False)], limit=1).id
+                rec.states = self.env['state.name'].search(
+                    [('fold', '=', False)], limit=1).id
 
     @api.model
     def _read_group_stage_ids(self, stages, domain, order):
         return stages.search([], order=order)
 
     calculate_bool = fields.Boolean(string='true/false')
-    
 
     # State Calculate Actions
+
     def action_calculate_cost(self):
         for rec in self:
-            
+
             rec.calculate_bool = True
 
             if not rec.points_id:
-                raise ValidationError("Customer tidak memiliki poin yang terdaftar.")
+                raise ValidationError(
+                    "Customer tidak memiliki poin yang terdaftar.")
 
             if rec.min_point <= 0:
                 raise ValidationError("Point cost tidak boleh negatif.")
@@ -300,30 +311,33 @@ class Ticketing(models.Model):
                 message_type='comment',
                 subtype_xmlid='mail.mt_note'
             )
-    
+
     # track state default (misal: 'Submit')
     def default_get(self, fields):
         defaults = super().default_get(fields)
         is_customer = self.env.user.has_group('tickets.group_customer_only')
         if is_customer:
-            new_state = self.env['state.name'].search([('name', '=', 'Submit')], limit=1)
+            new_state = self.env['state.name'].search(
+                [('name', '=', 'Submit')], limit=1)
             if new_state:
                 defaults['states'] = new_state.id
         return defaults
-    
+
     @api.constrains('states')
     def _check_states_by_customer(self):
         for rec in self:
             if self.env.user.has_group('tickets.group_customer_only'):
                 if rec.states and rec.states.name not in ['Submit']:
-                    raise ValidationError("Customer tidak diizinkan mengubah status tiket.")
+                    raise ValidationError(
+                        "Customer tidak diizinkan mengubah status tiket.")
 
     @api.constrains('submitted_date', 'expired_ticket')
     def _check_ticket_expiry(self):
         for rec in self:
             if rec.submitted_date and rec.expired_ticket:
                 if rec.submitted_date > rec.expired_ticket:
-                    raise ValidationError("Ticket Available anda telah kadaluarsa.")
+                    raise ValidationError(
+                        "Ticket Available anda telah kadaluarsa.")
 
     # @api.constrains('category', 'name')
     # def _categ_empty(self):
@@ -331,13 +345,14 @@ class Ticketing(models.Model):
     #         if not rec.category:
     #             raise ValidationError("Field Category Kosong")
 
+    # point 0 constraint
 
-    # point 0 constraint            
     @api.constrains('points_id', 'category', 'min_point')
     def _point_validation(self):
         for record in self:
             if record.points_id and record.points_id.name <= 0:
-                raise ValidationError("Ticket Available anda bernilai 0 tidak dapat membuat tiket.")
+                raise ValidationError(
+                    "Ticket Available anda bernilai 0 tidak dapat membuat tiket.")
 
     @api.onchange('points_id', 'category')
     def _onchange_point_validation(self):
@@ -347,8 +362,8 @@ class Ticketing(models.Model):
                     'warning': {
                         'title': "Poin Tidak Cukup",
                         'message': "Poin customer bernilai 0. Tidak bisa membuat tiket."
+                    }
                 }
-            }
 
     @api.model
     def create(self, vals):
@@ -358,7 +373,7 @@ class Ticketing(models.Model):
         user = self.env.user
         customer_id = vals.get('customer_name_id')
         category_id = vals.get('category')
-        definition_id= vals.get('definition')
+        definition_id = vals.get('definition')
         min_point = vals.get('min_point', 0)
 
         # if customer_id:
@@ -371,21 +386,25 @@ class Ticketing(models.Model):
         #         raise ValidationError(
         #             _("Anda masih memiliki tiket yang belum selesai")
         #         )
-            
+
         if self.submitted_date and self.expired_ticket:
             if self.submitted_date > self.expired_ticket:
-                raise ValidationError("Ticket Available anda telah kadaluarsa.")
+                raise ValidationError(
+                    "Ticket Available anda telah kadaluarsa.")
 
         # Validasi: Customer harus dipilih
         if not customer_id:
-            raise ValidationError("Customer field is Empty, please fill the field first.")
+            raise ValidationError(
+                "Customer field is Empty, please fill the field first.")
 
         # Validasi: Kategori harus diisi
         if not category_id:
-            raise ValidationError("Field Category is Empty, please fill the field first.")
+            raise ValidationError(
+                "Field Category is Empty, please fill the field first.")
 
-        if not definition_id :
-            raise ValidationError("Field Problem Definition is Empty, please fill the field first.")
+        if not definition_id:
+            raise ValidationError(
+                "Field Problem Definition is Empty, please fill the field first.")
 
         # Cari point.name berdasarkan customer + category (product_point)
         point_obj = self.env['point.name'].search([
@@ -395,11 +414,12 @@ class Ticketing(models.Model):
 
         # Kalau tidak ditemukan, GAGAL buat tiket (dilarang create baru di sini)
         if not point_obj:
-            raise ValidationError("Customer belum memiliki alokasi tiket poin untuk kategori ini.")
+            raise ValidationError(
+                "Customer belum memiliki alokasi tiket poin untuk kategori ini.")
 
         if point_obj.name <= 0.00:
             raise ValidationError(
-                _("Poin customer untuk kategori ini adalah %(balance)s. Tidak dapat membuat tiket baru.", 
+                _("Poin customer untuk kategori ini adalah %(balance)s. Tidak dapat membuat tiket baru.",
                   balance=point_obj.name)
             )
 
@@ -414,7 +434,8 @@ class Ticketing(models.Model):
         record = super().create(vals)
 
         if record.point_value == 0.00:
-            raise ValidationError("Customer Have No Ticket Available Please Contact Sales To Confirm Ticket")
+            raise ValidationError(
+                "Customer Have No Ticket Available Please Contact Sales To Confirm Ticket")
 
         # Buat nomor tiket baru setelah semua validasi lulus
         # if record.name in (False, 'Submit', '/'):
@@ -426,7 +447,8 @@ class Ticketing(models.Model):
 
         # Validasi: apakah cukup poin
         if record.points_id.name < record.min_point:
-            raise ValidationError("Poin customer tidak cukup untuk membuat tiket ini.")
+            raise ValidationError(
+                "Poin customer tidak cukup untuk membuat tiket ini.")
 
         # Kurangi poin customer
         record.points_id.name -= record.min_point
@@ -447,38 +469,41 @@ class Ticketing(models.Model):
         #     message_type='comment',
         #     subtype_xmlid='mail.mt_note'
         # )
-        
+
         # Update atau buat avg.ticket otomatis
         record._update_avg_ticket_auto()
 
         return record
 
-
     # api one change
+
     @api.depends("min_point")
     def onchange_states(self):
         print("Customer tidak boleh membuat tiket langsung dalam status lain selain status 'Submit'.")
-        submit_state = self.env['state.name'].search([('name', '=', '1')], limit=1)
+        submit_state = self.env['state.name'].search(
+            [('name', '=', '1')], limit=1)
         admin = self.env.user.has_group('tickets.group_admin')
 
         if admin and self.states.id == submit_state.id:
             self.states = False
-            print("Customer tidak boleh membuat tiket langsung dalam status lain selain status 'Submit'.")
-    
+            print(
+                "Customer tidak boleh membuat tiket langsung dalam status lain selain status 'Submit'.")
+
     # === Constraints ===
 
     @api.constrains('customer_name_id')
     def _check_required_fields(self):
         for rec in self:
             if not rec.customer_name_id:
-                raise ValidationError("Field Customer Name tidak boleh kosong.")
-    
+                raise ValidationError(
+                    "Field Customer Name tidak boleh kosong.")
+
     # @api.onchange('states')
     # def onchange_states(self):
     #         for record in self:
     #             if record.states.id == 2:
     #                 print("record berhasil")
-    
+
     # kanban states
     @api.onchange('states')
     def onchange_statess(self):
@@ -490,14 +515,14 @@ class Ticketing(models.Model):
 
     def state_submit(self):
         # for ticket in self:
-            self.states = 1  # Atur state (misalnya 'Submitted') 
-            print("record berhasil di submit********************************************************************************************************************************************************8")
-            # Ambil template email berdasarkan ID eksternal
-            # template = self.env.ref('tickets.email_template_ticket_update', raise_if_not_found=False)
-            
-            # # Kirim email jika templatenya ditemukan
-            # if template:
-            #     template.send_mail(ticket.name, force_send=True)
+        self.states = 1  # Atur state (misalnya 'Submitted')
+        print("record berhasil di submit********************************************************************************************************************************************************8")
+        # Ambil template email berdasarkan ID eksternal
+        # template = self.env.ref('tickets.email_template_ticket_update', raise_if_not_found=False)
+
+        # # Kirim email jika templatenya ditemukan
+        # if template:
+        #     template.send_mail(ticket.name, force_send=True)
 
     def state_progress(self):
         self.states = 2
@@ -505,7 +530,8 @@ class Ticketing(models.Model):
         print(self.points_id)
         for record in self:
             if record.point_value < 1:
-                raise ValidationError("Ticket Available anda bernilai 0 tidak dapat membuat tiket.")
+                raise ValidationError(
+                    "Ticket Available anda bernilai 0 tidak dapat membuat tiket.")
 
     def state_finish(self):
         self.states = 3
@@ -513,13 +539,14 @@ class Ticketing(models.Model):
 
     def state_cancel(self):
         self.states = 4
-    
+
     # problem_id = fields.Many2one(comodel_name='problem.name', string='Problems')
 
-    definition = fields.Many2one(comodel_name='definition.name', string='Problem Definition', domain="[('service_title', '=', category)]")
+    definition = fields.Many2one(comodel_name='definition.name',
+                                 string='Problem Definition', domain="[('service_title', '=', category)]")
     remark_name = fields.Char(string='Remarks', related="definition.remark",
-    store=True)
-    
+                              store=True)
+
     @api.onchange('definition')
     def _onchange_definition_remark(self):
         if self.definition:
@@ -530,10 +557,11 @@ class Ticketing(models.Model):
     problem_description = fields.Char(string='Problem Description')
     # ticket_id = fields.Many2one(comodel_name='ticket.name', tracking=True,
     #     store=True)
-    photo_prove = fields.Image('Photo Prove Attacthment', max_width=400, max_height=800, attachment=True, store=True, tracking=True)
-    
+    photo_prove = fields.Image('Photo Prove Attacthment', max_width=400,
+                               max_height=800, attachment=True, store=True, tracking=True)
+
     # def _post_chatter(self, msg):
-        
+
     #     self.message_post(
     #         body=msg,
     #         message_type='comment',
@@ -554,26 +582,28 @@ class Ticketing(models.Model):
     # def unlink(self):
     #     for rec in self:
     #         rec._post_chatter(f"🗑️ Problem Description dihapus: <b>{rec.problem_id}</b>")
-            
+
     #     return super().unlink()\
-    
+
     def write(self, vals):
         # --- Persiapan (dari write #1 dan #2) ---
         new_state = None
         if 'states' in vals and vals['states']:
             new_state = self.env['state.name'].browse(vals['states'])
-        
-        is_customer_group = self.env.user.has_group('tickets.group_customer_only')
-        
-        messages = [] # Untuk chatter
+
+        is_customer_group = self.env.user.has_group(
+            'tickets.group_customer_only')
+
+        messages = []  # Untuk chatter
 
         # --- Validasi & Persiapan Chatter (Harus sebelum super().write) ---
         for record in self:
-            
+
             # --- Logika Keamanan (dari write #1) ---
             # Jika user termasuk group customer dan ingin ubah state apa pun → tolak
             if is_customer_group and 'states' in vals:
-                raise ValidationError("Customer tidak diperbolehkan mengubah status tiket.")
+                raise ValidationError(
+                    "Customer tidak diperbolehkan mengubah status tiket.")
 
             # --- LOGIKA BARU: Tidak bisa kembali ke Submit ---
             # Cek jika *siapapun* mencoba memindahkan ke 'Submit'
@@ -606,7 +636,7 @@ class Ticketing(models.Model):
                     "<br/>".join(msg_parts)
                 )
                 # Menyimpan record-nya, bukan cuma nama, agar bisa post chatter
-                messages.append((record, message)) 
+                messages.append((record, message))
 
         # --- Panggil super().write() HANYA SATU KALI ---
         res = super().write(vals)
@@ -620,7 +650,7 @@ class Ticketing(models.Model):
 
         # Logika dari write #2 (Posting Chatter)
         if messages:
-            for rec, message in messages: # Loop dari messages yang sudah disiapkan
+            for rec, message in messages:  # Loop dari messages yang sudah disiapkan
                 rec.message_post(
                     body=message,
                     message_type='comment',
@@ -637,7 +667,8 @@ class Ticketing(models.Model):
                 continue
 
             avg_model = self.env['avg.ticket']
-            avg_rec = avg_model.search([('customer_id', '=', customer.id)], limit=1)
+            avg_rec = avg_model.search(
+                [('customer_id', '=', customer.id)], limit=1)
 
             # Hitung ulang data customer tersebut
             vals = avg_model.compute_avg_for_customer(customer.id)
@@ -659,24 +690,32 @@ class Ticketing(models.Model):
             if rec.manual_min_point:
                 rec.min_point = rec.manual_min_point
                 continue
-            
+
             # Original computation logic if no manual override
             rec.min_point = 0.0
             if not rec.complexity or not rec.progress_date:
                 continue
 
-            complexity_map = {'none':0.0, 'low':1.0, 'medium':1.5, 'high':2.0}
+            complexity_map = {'none': 0.0, 'low': 1.0,
+                              'medium': 1.5, 'high': 2.0}
             complexity_value = complexity_map.get(rec.complexity, 0.0)
 
             if rec.finish_date:
-                delta_hours = (rec.finish_date - rec.progress_date).total_seconds() / 3600.0
-            else:
-                delta_hours = (fields.Datetime.now() - rec.progress_date).total_seconds() / 3600.0
+                delta_hours = (rec.finish_date -
+                               rec.progress_date).total_seconds() / 3600.0
 
-            duration_points = math.ceil(delta_hours / 24.0)
+            else:
+                delta_hours = (fields.Datetime.now() -
+                               rec.progress_date).total_seconds() / 3600.0
+
+            duration_points = delta_hours / 24
+
+            if duration_points <= 1:
+                duration_points = 1
+            else:
+                duration_points = 2
 
             rec.min_point = complexity_value + duration_points
-
 
     def _inverse_min_point(self):
         for rec in self:
