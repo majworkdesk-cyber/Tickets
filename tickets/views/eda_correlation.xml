@@ -54,7 +54,11 @@ action = model.compute_and_save_correlation()
       <field name="arch" type="xml">
         <form string="Correlation Matrix Detail" create="false" edit="false" delete="false">
           <header>
-             </header>
+          <button name="compute_and_save_correlation"
+            string="Calculate Correlation"
+            type="object"
+            class="oe_highlight"/>
+          </header>
           <sheet>
             <group>
               <field name="calculation_date" readonly="1"/>

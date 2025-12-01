@@ -3,10 +3,11 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 import numpy as np
 import pandas as pd
-from datetime import datetime # No need for timedelta here
+from datetime import datetime  # No need for timedelta here
 
 # Make sure pandas is installed in your Odoo environment:
 # pip install pandas
+
 
 class EDACorrelation(models.Model):
     _name = 'eda.correlation'
@@ -14,35 +15,57 @@ class EDACorrelation(models.Model):
     _order = 'calculation_date desc'
     _rec_name = 'calculation_date'
 
-    calculation_date = fields.Datetime(string='Calculation Date', default=fields.Datetime.now, readonly=True)
+    calculation_date = fields.Datetime(
+        string='Calculation Date', default=fields.Datetime.now, readonly=True)
 
     # === Define all 21 correlation fields ===
-    corr_ticket_priority = fields.Float('Corr(Ticket Count vs Avg Priority)', digits=(6, 3))
-    corr_ticket_complexity = fields.Float('Corr(Ticket Count vs Avg Complexity)', digits=(6, 3))
-    corr_ticket_response = fields.Float('Corr(Ticket Count vs Avg Response Time)', digits=(6, 3))
-    corr_ticket_resolution = fields.Float('Corr(Ticket Count vs Avg Resolution Time)', digits=(6, 3))
-    corr_ticket_point = fields.Float('Corr(Ticket Count vs Avg Point)', digits=(6, 3))
-    corr_ticket_rating = fields.Float('Corr(Ticket Count vs Avg Rating)', digits=(6, 3))
+    corr_ticket_priority = fields.Float(
+        'Corr(Ticket Count vs Avg Priority)', digits=(6, 3))
+    corr_ticket_complexity = fields.Float(
+        'Corr(Ticket Count vs Avg Complexity)', digits=(6, 3))
+    corr_ticket_response = fields.Float(
+        'Corr(Ticket Count vs Avg Response Time)', digits=(6, 3))
+    corr_ticket_resolution = fields.Float(
+        'Corr(Ticket Count vs Avg Resolution Time)', digits=(6, 3))
+    corr_ticket_point = fields.Float(
+        'Corr(Ticket Count vs Avg Point)', digits=(6, 3))
+    corr_ticket_rating = fields.Float(
+        'Corr(Ticket Count vs Avg Rating)', digits=(6, 3))
 
-    corr_priority_complexity = fields.Float('Corr(Avg Priority vs Avg Complexity)', digits=(6, 3))
-    corr_priority_response = fields.Float('Corr(Avg Priority vs Avg Response Time)', digits=(6, 3))
-    corr_priority_resolution = fields.Float('Corr(Avg Priority vs Avg Resolution Time)', digits=(6, 3))
-    corr_priority_point = fields.Float('Corr(Avg Priority vs Avg Point)', digits=(6, 3))
-    corr_priority_rating = fields.Float('Corr(Avg Priority vs Avg Rating)', digits=(6, 3))
+    corr_priority_complexity = fields.Float(
+        'Corr(Avg Priority vs Avg Complexity)', digits=(6, 3))
+    corr_priority_response = fields.Float(
+        'Corr(Avg Priority vs Avg Response Time)', digits=(6, 3))
+    corr_priority_resolution = fields.Float(
+        'Corr(Avg Priority vs Avg Resolution Time)', digits=(6, 3))
+    corr_priority_point = fields.Float(
+        'Corr(Avg Priority vs Avg Point)', digits=(6, 3))
+    corr_priority_rating = fields.Float(
+        'Corr(Avg Priority vs Avg Rating)', digits=(6, 3))
 
-    corr_complexity_response = fields.Float('Corr(Avg Complexity vs Avg Response Time)', digits=(6, 3))
-    corr_complexity_resolution = fields.Float('Corr(Avg Complexity vs Avg Resolution Time)', digits=(6, 3))
-    corr_complexity_point = fields.Float('Corr(Avg Complexity vs Avg Point)', digits=(6, 3))
-    corr_complexity_rating = fields.Float('Corr(Avg Complexity vs Avg Rating)', digits=(6, 3))
+    corr_complexity_response = fields.Float(
+        'Corr(Avg Complexity vs Avg Response Time)', digits=(6, 3))
+    corr_complexity_resolution = fields.Float(
+        'Corr(Avg Complexity vs Avg Resolution Time)', digits=(6, 3))
+    corr_complexity_point = fields.Float(
+        'Corr(Avg Complexity vs Avg Point)', digits=(6, 3))
+    corr_complexity_rating = fields.Float(
+        'Corr(Avg Complexity vs Avg Rating)', digits=(6, 3))
 
-    corr_response_resolution = fields.Float('Corr(Avg Response Time vs Avg Resolution Time)', digits=(6, 3))
-    corr_response_point = fields.Float('Corr(Avg Response Time vs Avg Point)', digits=(6, 3))
-    corr_response_rating = fields.Float('Corr(Avg Response Time vs Avg Rating)', digits=(6, 3))
+    corr_response_resolution = fields.Float(
+        'Corr(Avg Response Time vs Avg Resolution Time)', digits=(6, 3))
+    corr_response_point = fields.Float(
+        'Corr(Avg Response Time vs Avg Point)', digits=(6, 3))
+    corr_response_rating = fields.Float(
+        'Corr(Avg Response Time vs Avg Rating)', digits=(6, 3))
 
-    corr_resolution_point = fields.Float('Corr(Avg Resolution Time vs Avg Point)', digits=(6, 3))
-    corr_resolution_rating = fields.Float('Corr(Avg Resolution Time vs Avg Rating)', digits=(6, 3))
+    corr_resolution_point = fields.Float(
+        'Corr(Avg Resolution Time vs Avg Point)', digits=(6, 3))
+    corr_resolution_rating = fields.Float(
+        'Corr(Avg Resolution Time vs Avg Rating)', digits=(6, 3))
 
-    corr_point_rating = fields.Float('Corr(Avg Point vs Avg Rating)', digits=(6, 3))
+    corr_point_rating = fields.Float(
+        'Corr(Avg Point vs Avg Rating)', digits=(6, 3))
 
     # === [PRIVATE METHOD] Logic for Calculating the Matrix ===
     def _calculate_matrix(self):
@@ -56,7 +79,7 @@ class EDACorrelation(models.Model):
         ])
 
         if not avg_data:
-            return False # Return False if no average data exists
+            return False  # Return False if no average data exists
 
         # Convert to Pandas DataFrame
         df = pd.DataFrame([{
@@ -70,10 +93,11 @@ class EDACorrelation(models.Model):
         } for rec in avg_data])
 
         if df.empty:
-            return False # Return False if DataFrame is empty
+            return False  # Return False if DataFrame is empty
 
-        df = df.fillna(0) # Replace potential NaN values with 0
-        corr_matrix = df.corr(method='pearson') # Calculate Pearson correlation
+        df = df.fillna(0)  # Replace potential NaN values with 0
+        # Calculate Pearson correlation
+        corr_matrix = df.corr(method='pearson')
 
         # Helper function to safely get correlation values
         def safe_corr(a, b):
@@ -114,42 +138,33 @@ class EDACorrelation(models.Model):
             'corr_resolution_rating': safe_corr('avg_resolution_time', 'avg_rating'),
 
             'corr_point_rating': safe_corr('avg_point', 'avg_rating'),
-            'calculation_date': fields.Datetime.now(), # Record calculation time
+            'calculation_date': fields.Datetime.now(),  # Record calculation time
         }
 
     # === [PUBLIC METHOD 1] Triggered by Odoo Action (SINGLETON WRITE) ===
-    def compute_and_save_correlation(self, records=None): # Add records=None to handle potential extra arg
-        """
-        Calculate correlation matrix. Update the existing record (overwrite)
-        or create a new one if none exists (Singleton Pattern).
-        """
+    def compute_and_save_correlation(self, records=None):
         vals = self._calculate_matrix()
 
         if not vals:
-            raise ValidationError("No data found in 'avg.ticket' or data is empty. Cannot compute correlation.")
+            raise ValidationError(
+                "No data found in 'avg.ticket' or data is empty. Cannot compute correlation.")
 
-        # --- Singleton Update/Create Logic ---
-        # Find the oldest existing record
         record = self.search([], limit=1, order='id asc')
 
         if record:
-            # Update the existing record
             record.write(vals)
-            # Clean up potential duplicate records (pass context)
-            self.search([('id', '!=', record.id)]).with_context(skip_unlink_validation=True).unlink()
+            self.search([('id', '!=', record.id)]).with_context(
+                skip_unlink_validation=True).unlink()
         else:
-            # Create a new record if none exists
             record = self.create(vals)
 
-        # Return success notification
+        # FORCE FORM REFRESH
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Success',
-                'message': 'Correlation matrix calculated and saved successfully (ID: %s).' % record.id,
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'eda.correlation',
+            'view_mode': 'form',
+            'res_id': record.id,
+            'target': 'current',
         }
 
     # === [PUBLIC METHOD 2] Called by JavaScript/OWL ===
@@ -159,12 +174,14 @@ class EDACorrelation(models.Model):
         corr_record = self.search([], order='calculation_date desc', limit=1)
 
         if not corr_record:
-            return {} # Return empty dict if no record found
+            return {}  # Return empty dict if no record found
 
         # Read all float fields (correlation values)
-        fields_to_read = [name for name, field in self._fields.items() if field.type == 'float']
-        data = corr_record.read(fields=fields_to_read)[0] # Read the first record
-        data.pop('id', None) # Remove the internal ID
+        fields_to_read = [name for name,
+                          field in self._fields.items() if field.type == 'float']
+        data = corr_record.read(fields=fields_to_read)[
+            0]  # Read the first record
+        data.pop('id', None)  # Remove the internal ID
 
         return data
 
@@ -176,4 +193,5 @@ class EDACorrelation(models.Model):
             # Use proper super() call for inheritance
             return super(EDACorrelation, self).unlink()
         # Raise error for manual deletion attempts
-        raise ValidationError("Correlation result records cannot be deleted manually!")
+        raise ValidationError(
+            "Correlation result records cannot be deleted manually!")

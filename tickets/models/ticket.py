@@ -516,7 +516,7 @@ class Ticketing(models.Model):
     def state_submit(self):
         # for ticket in self:
         self.states = 1  # Atur state (misalnya 'Submitted')
-        print("record berhasil di submit********************************************************************************************************************************************************8")
+        # print("record berhasil di submit********************************************************************************************************************************************************8")
         # Ambil template email berdasarkan ID eksternal
         # template = self.env.ref('tickets.email_template_ticket_update', raise_if_not_found=False)
 
@@ -685,35 +685,37 @@ class Ticketing(models.Model):
 
     @api.depends('complexity', 'progress_date', 'finish_date', 'manual_min_point')
     def _compute_min_point(self):
+        complexity_map = {
+            'none': 0.0,
+            'low': 1.0,
+            'medium': 1.5,
+            'high': 2.0,
+        }
+
         for rec in self:
-            # Check for a manual override first
+            # manual override
             if rec.manual_min_point:
                 rec.min_point = rec.manual_min_point
                 continue
 
-            # Original computation logic if no manual override
+            # default
             rec.min_point = 0.0
-            if not rec.complexity or not rec.progress_date:
+
+            # kalau belum ada progress, stop
+            if not rec.progress_date:
                 continue
 
-            complexity_map = {'none': 0.0, 'low': 1.0,
-                              'medium': 1.5, 'high': 2.0}
+            # complexity dihitung DULU (awal)
             complexity_value = complexity_map.get(rec.complexity, 0.0)
+            rec.min_point = complexity_value
 
-            if rec.finish_date:
-                delta_hours = (rec.finish_date -
-                               rec.progress_date).total_seconds() / 3600.0
+            # kalau belum finish, cukup complexity saja
+            if not rec.finish_date:
+                continue
 
-            else:
-                delta_hours = (fields.Datetime.now() -
-                               rec.progress_date).total_seconds() / 3600.0
-
-            duration_points = delta_hours / 24
-
-            if duration_points <= 1:
-                duration_points = 1
-            else:
-                duration_points = 2
+            # kalau sudah finish → tambah duration
+            delta_hours = (rec.finish_date - rec.progress_date).total_seconds() / 3600
+            duration_points = 1 if delta_hours < 24 else 2
 
             rec.min_point = complexity_value + duration_points
 
